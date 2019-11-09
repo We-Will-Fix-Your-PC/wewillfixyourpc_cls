@@ -1,0 +1,35 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Customers</h1>
+        <a class="btn btn-success" href="{% url 'customers:new' %}">New customer</a>
+        <table class="table mt-3">
+            <thead>
+                <tr>
+                    <th>First name</th>
+                    <th>Last name</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th>Phone</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.firstName }}</td>
+                        <td>{{ customer.lastName }}</td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.username }}</td>
+                        <td>{{ customer.attributes.phone|join:", " }}</td>
+                        <td>
+                            <a href="{% url 'customers:view_customer' customer.id %}" class="btn btn-success mr-1">View</a>
+                            <a href="{% url 'customers:edit_customer' customer.id %}" class="btn btn-primary">Edit</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
