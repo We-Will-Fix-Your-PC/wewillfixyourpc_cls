@@ -25,6 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '()%cgo!+bsth-2k=!6fp62d2$)o)-fr0r(9_1j57l-mi+#zt$e'
+OTP_SECRET = 'C6NHIELPLV7R3OCG'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'cls',
     'customers',
+    'checkin',
     'crispy_forms',
 ]
 

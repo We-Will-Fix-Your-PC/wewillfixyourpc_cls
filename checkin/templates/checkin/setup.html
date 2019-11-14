@@ -1,0 +1,16 @@
+{% extends "checkin/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Customer checkin</h1>
+        <h3>Enter the 6 digit code from the agent interface to setup this self checkin device</h3>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ form.code|as_crispy_field }}
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </form>
+    </div>
+{% endblock %}

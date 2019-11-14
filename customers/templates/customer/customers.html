@@ -4,6 +4,9 @@
     <div class="container mt-4">
         <h1>Customers</h1>
         <a class="btn btn-success" href="{% url 'customers:new' %}">New customer</a>
+        {% if perms.customers.add_customer %}
+            <span><b>Code for self checkin:</b> <span id="totp">...</span></span>
+        {% endif %}
         <table class="table mt-3">
             <thead>
                 <tr>
@@ -33,3 +36,19 @@
         </table>
     </div>
 {% endblock %}
+
+{% if perms.customers.add_customer %}
+    {% block scripts %}
+        <script type="application/javascript">
+            $(function () {
+                function update() {
+                    $.get("/checkin/totp", null, function (value) {
+                        $("#totp").text(value);
+                    });
+                }
+                setInterval(update, 5000);
+                update();
+            });
+        </script>
+    {% endblock %}
+{% endif %}

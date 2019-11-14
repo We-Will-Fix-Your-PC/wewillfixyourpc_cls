@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('cls.urls')),
     path('customers/', include('customers.urls', namespace='customers')),
+    path('checkin/', include('checkin.urls', namespace='checkin')),
     path("auth/", include("django_keycloak_auth.urls")),
 ]

@@ -1,0 +1,43 @@
+{% extends "checkin/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Welcome!</h1>
+        {% if customer %}
+            <h3>Are you {{ customer.firstName }} {{ customer.lastName }}?</h3>
+            <table class="table">
+                <tr>
+                    <th>Email:</th>
+                    <td>{% if customer.email %}{{ customer.email }}{% else %}N/A{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>Phone:</th>
+                    <td>{% if customer.attributes.phone %}{{ customer.attributes.phone|join:", " }}{% else %}N/A{% endif %}</td>
+                </tr>
+            </table>
+            <form action="" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="customer_id" value="{{ customer.id }}">
+                <button type="submit" name="confirm" value="yes" class="btn btn-success">Yes</button>
+                <button type="submit" name="confirm" value="no" class="btn btn-secondary">No</button>
+            </form>
+        {% else %}
+            <h3>Please enter your details so we can contact you (both fields are optional)</h3>
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="row">
+                    <div class="col">
+                        {{ form.email|as_crispy_field }}
+                    </div>
+                    <div class="col">
+                        {{ form.phone|as_crispy_field }}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Continue</button>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

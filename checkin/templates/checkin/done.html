@@ -1,0 +1,10 @@
+{% extends "checkin/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Checkin complete!</h1>
+        <a href="{% url 'checkin:index' %}" class="btn btn-primary">Done</a>
+    </div>
+{% endblock %}
