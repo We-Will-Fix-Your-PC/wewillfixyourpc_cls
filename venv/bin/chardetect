@@ -1,4 +1,4 @@
-#!/media/data/Users/BenjaminMisell/Documents/wewillfixyourpc_cls/venv/bin/python3
+#!/media/data/Documents/wewillfixyourpc_cls/venv/bin/python3
 # EASY-INSTALL-ENTRY-SCRIPT: 'chardet','console_scripts','chardetect'
 __requires__ = 'chardet'
 import re

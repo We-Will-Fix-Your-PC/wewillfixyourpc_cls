@@ -76,7 +76,7 @@ def view_tickets(request):
 
 
 @login_required
-@permission_required('tickets.view_ticket', raise_exception=True)
+@permission_required('tickets.add_ticket', raise_exception=True)
 def new_ticket(request):
     if request.method == "POST":
         customer_id = request.POST.get("customer_id")
@@ -169,6 +169,17 @@ def edit_ticket(request, ticket_id):
     return render(request, "tickets/ticket_form.html", {
         "form": form,
         "title": "Edit ticket"
+    })
+
+
+@login_required
+def view_ticket(request, ticket_id):
+    ticket = get_object_or_404(models.Ticket, id=ticket_id)
+    if not (request.user.has_perm("tickets.view_tickets") or str(ticket.customer) == request.user.username):
+        raise PermissionError()
+
+    return render(request, "tickets/ticket.html", {
+        "ticket": ticket
     })
 
 

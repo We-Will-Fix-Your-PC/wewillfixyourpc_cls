@@ -1,0 +1,90 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>View ticket</h1>
+        <div class="row">
+            <div class="col">
+                <b>ID:</b> {{ ticket.id }}
+            </div>
+            <div class="col">
+                <b>Date:</b> {{ ticket.date }}
+            </div>
+            <div class="col">
+                {% with customer=ticket.get_customer.user %}
+                    <b>Customer: </b> {% if perms.customers.view_customer %}
+                    <a href="{% url 'customers:view_customer' customer.id %}">{% endif %}
+                {{ customer.firstName }} {{ customer.lastName }}
+                {% if perms.customers.view_customer %}</a>{% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <b>Equipment: </b> {{ ticket.equipment.name }}
+            </div>
+            <div class="col">
+                <b>Status: </b> {{ ticket.status.name }}
+            </div>
+            {% if perms.tickets.view_ticket %}
+                <div class="col">
+                    <b>Location: </b> {{ ticket.location.name }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col">
+                <b>Booked by: </b> {{ ticket.get_booked_by.user.firstName }}
+                {% if perms.tickets.view_ticket %}{{ ticket.get_booked_by.user.lastName }}{% endif %}
+            </div>
+            <div class="col">
+                <b>Assinged to: </b> {{ ticket.get_assigned_to.user.firstName }}
+                {% if perms.tickets.view_ticket %}{{ ticket.get_assigned_to.user.lastName }}{% endif %}
+            </div>
+            <div class="col">
+                <b>Current OS:</b> {{ ticket.current_os.name }}
+            </div>
+            <div class="col">
+                <b>Wanted OS: </b>{{ ticket.wanted_os.name }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+                <b>Charger:</b>
+            </div>
+            <div class="col-1">
+                <i class="material-icons">{% if ticket.has_charger %}check_box{% else %}
+                    check_box_outline_blank{% endif %}</i>
+            </div>
+            <div class="col-1">
+                <b>Case:</b>
+            </div>
+            <div class="col-1">
+                <i class="material-icons">{% if ticket.has_case %}check_box{% else %}
+                    check_box_outline_blank{% endif %}</i>
+            </div>
+            <div class="col-3">
+                <b>Other equipment:</b> {{ ticket.other_equipment }}
+            </div>
+            {% if perms.tickets.view_ticket %}
+                <div class="col-3">
+                    <b>To do by:</b> {{ ticket.to_do_by }}
+                </div>
+                <div class="col-2">
+                    <b>Quote: </b> {{ ticket.quote }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>What's it doing?</h3>
+                {{ ticket.whats_it_doing|safe }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>Work done</h3>
+                {{ ticket.work_done }}
+            </div>
+        </div>
+{% endblock %}

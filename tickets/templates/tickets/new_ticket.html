@@ -10,16 +10,27 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="name">Customers name</label>
-                        <input type="text" class="form-control rounded-bottom-0" id="name" name="name" autocomplete="off">
+                        <input type="text" class="form-control rounded-bottom-0" id="name" name="name"
+                               autocomplete="off">
                         <div id="autofill">
                         </div>
                     </div>
-                    <input type="hidden" name="customer-id" id="customer-id" value="">
+                    <input type="hidden" name="customer_id" id="customer-id" value="">
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
             <div class="col">
                 <h2>Recently completed self check-ins</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>First name</th>
+                            <th>Last name</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="checkins"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -34,6 +45,7 @@
             border-bottom: 1px solid #aaa;
             cursor: pointer;
         }
+
         #autofill div:hover {
             background: #ccc;
         }
@@ -44,9 +56,11 @@
     {% csrf_token %}
     <script type="text/javascript">
         var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
         function csrfSafeMethod(method) {
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
+
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -87,6 +101,28 @@
             $("#autofill").css("display", "none");
             $("#name").val(name);
             $("#customer-id").val(id);
-        })
+        });
+
+        function update() {
+            $.get("{% url 'checkin:recent_customers' %}", null, function (value) {
+                let out = "";
+                value.forEach(function (customer) {
+                    out += `<tr>
+                                <td>${customer.firstName}</td>
+                                <td>${customer.lastName}</td>
+                                <td>
+                                  <form action="" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="customer_id" value="${customer.id}">
+                                    <button type="submit" class="btn btn-success">Select</button>
+                                  </form>
+                                </td>
+                            </tr>`;
+                });
+                $("#checkins").html(out);
+            });
+        }
+        setInterval(update, 5000);
+        update();
     </script>
 {% endblock %}

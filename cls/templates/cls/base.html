@@ -24,19 +24,25 @@
                 <li class="nav-item{% if request.get_full_path == home_url %} active{% endif %}">
                     <a class="nav-link" href="{{ home_url }}">Home</a>
                 </li>
-                {% url 'customers:view_customers' as customers_url %}
-                <li class="nav-item{% if request.get_full_path == customers_url %} active{% endif %}">
-                    <a class="nav-link" href="{{ customers_url }}">Customers</a>
-                </li>
-                {% url 'tickets:view_tickets' as tickets_url %}
-                <li class="nav-item{% if request.get_full_path == tickets_url %} active{% endif %}">
-                    <a class="nav-link" href="{{ tickets_url }}">Tickets</a>
-                </li>
+                {% if perms.customers.view_customer %}
+                    {% url 'customers:view_customers' as customers_url %}
+                    <li class="nav-item{% if request.get_full_path == customers_url %} active{% endif %}">
+                        <a class="nav-link" href="{{ customers_url }}">Customers</a>
+                    </li>
+                {% endif %}
+                {% if perms.tickets.view_ticket %}
+                    {% url 'tickets:view_tickets' as tickets_url %}
+                    <li class="nav-item{% if request.get_full_path == tickets_url %} active{% endif %}">
+                        <a class="nav-link" href="{{ tickets_url }}">Tickets</a>
+                    </li>
+                {% endif %}
             </ul>
-            <form class="form-inline my-2 my-lg-0" method="get" action="{% url 'cls:search' %}">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="q">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+            {% if perms.customers.view_customer and perms.tickets.view_ticket %}
+                <form class="form-inline my-2 my-lg-0" method="get" action="{% url 'cls:search' %}">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="q">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            {% endif %}
         </div>
     </div>
 </nav>

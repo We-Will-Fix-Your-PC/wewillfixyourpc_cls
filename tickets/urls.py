@@ -5,6 +5,7 @@ app_name = 'tickets'
 urlpatterns = [
     path('', views.view_tickets, name="view_tickets"),
     path('ticket/<ticket_id>/edit', views.edit_ticket, name="edit_ticket"),
+    path('ticket/<ticket_id>', views.view_ticket, name="view_ticket"),
     path('new/', views.new_ticket, name="new"),
     path('new/<customer_id>', views.new_ticket_step2, name="new_step2"),
     path('settings/', views.ticket_settings, name="settings"),

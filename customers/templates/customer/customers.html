@@ -46,7 +46,7 @@
         <script type="application/javascript">
             $(function () {
                 function update() {
-                    $.get("/checkin/totp", null, function (value) {
+                    $.get("{% url 'checkin:totp' %}", null, function (value) {
                         $("#totp").text(value);
                     });
                 }

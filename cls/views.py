@@ -6,10 +6,23 @@ import tickets.models
 
 
 @login_required
-@permission_required('customers.view_customer', raise_exception=True)
-@permission_required('tickets.view_ticket', raise_exception=True)
 def index(request):
-    return render(request, "cls/index.html")
+    user = django_keycloak_auth.users.get_user_by_id(request.user.username)
+    role = next(
+        filter(
+            lambda r: r.get("name") == "customer",
+            user.role_mappings.realm.get()
+        ),
+        False
+    )
+    is_customer = True if role else False
+
+    repairs = tickets.models.Ticket.objects.filter(customer=request.user.username)
+
+    return render(request, "cls/index.html", {
+        "is_customer": is_customer,
+        "repairs": repairs
+    })
 
 
 @login_required

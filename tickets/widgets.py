@@ -69,3 +69,6 @@ class AgentWidget(forms.Select):
     @choices.setter
     def choices(self, _):
         pass
+
+    def __deepcopy__(self, memodict={}):
+        return AgentWidget()

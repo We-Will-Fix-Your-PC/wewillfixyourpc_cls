@@ -7,17 +7,55 @@
             </div>
         </div>
         <div class="row">
-            <div class="col border p-2 rounded-sm">
-                {% if perms.customers.add_customer %}
-                    <a href="{% url "customers:new" %}" class="btn btn-primary btn-lg btn-block">New customer</a>
-                {% endif %}
-                {% if perms.tickets.add_ticket %}
-                    <a href="{% url "tickets:new" %}" class="btn btn-primary btn-lg btn-block">New ticket</a>
-                {% endif %}
-            </div>
-            <div class="col">
-
-            </div>
+            {% if perms.customers.add_customer or perms.tickets.add_ticket %}
+                <div class="col border p-2 rounded-sm m-2">
+                    {% if perms.customers.add_customer %}
+                        <a href="{% url "customers:new" %}" class="btn btn-primary btn-lg btn-block">New customer</a>
+                    {% endif %}
+                    {% if perms.tickets.add_ticket %}
+                        <a href="{% url "tickets:new" %}" class="btn btn-primary btn-lg btn-block">New ticket</a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
+        {% if is_customer %}
+            <div class="row">
+                <div class="col border p-2 rounded-sm m-2">
+                    <h2>My repairs</h2>
+                    {% if not repairs %}
+                        You currently have no open repairs
+                    {% else %}
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Last updated</th>
+                                <th>Equipment</th>
+                                <th>Status</th>
+                                <th>Assigned to</th>
+                                <th>Booked by</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for repair in repairs %}
+                                <tr>
+                                    <td>{{ repair.id }}</td>
+                                    <td>{{ repair.date_updated }}</td>
+                                    <td>{{ repair.equipment.name }}</td>
+                                    <td>{{ repair.status.name }}</td>
+                                    <td>{{ repair.get_assigned_to.user.firstName }}</td>
+                                    <td>{{ repair.get_booked_by.user.firstName }}</td>
+                                    <td>
+                                        <a href="{% url 'tickets:view_ticket' repair.id %}" class="btn btn-success">View</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
