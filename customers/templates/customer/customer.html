@@ -2,6 +2,81 @@
 
 {% block content %}
     <div class="container mt-4">
-        <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
+        <h1>
+            {{ customer.firstName }} {{ customer.lastName }}
+            {% if perms.customers.change_customer %}
+                <a href="{% url 'customers:edit_customer' customer.id %}" class="btn btn-primary">Edit</a>
+            {% endif %}
+        </h1>
+        <hr>
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <tbody>
+                    <tr>
+                        <th>Email</th>
+                        <td>{% if customer.email %}{{ customer.email }}{% else %}N/A{% endif %}</td>
+                    </tr>
+                    {% for phone in customer.attributes.phone %}
+                        <tr>
+                            <th>Phone</th>
+                            <td>{{ phone }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <th>Account enabled</th>
+                        <td><i class="material-icons">{% if customer.enabled %}check_box{% else %}
+                            check_box_outline_blank{% endif %}</i></td>
+                    </tr>
+                    {% if address %}
+                        <tr>
+                            <th>Address</th>
+                            <td>
+                                {% if address.line_1 %}{{ address.line_1 }}<br>{% endif %}
+                                {% if address.line_2 %}{{ address.line_2 }}<br>{% endif %}
+                                {% if address.line_3 %}{{ address.line_3 }}<br>{% endif %}
+                                {% if address.city %}{{ address.city }}<br>{% endif %}
+                                {% if address.country %}{{ address.country }}<br>{% endif %}
+                                {% if address.postal_code %}{{ address.postal_code }}<br>{% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                {% if perms.customers.view_credential %}
+                    <h2>Credentials
+                        {% if perms.customers.add_credential %}
+                            <a href="{% url 'customers:new_credential' customer.id %}" class="btn btn-success">New</a>
+                        {% endif %}
+                    </h2>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for credential in credentials %}
+                            <tr>
+                            <td>{{ credential.name }}</td>
+                            <td>{{ credential.username }}</td>
+                            <td>{{ credential.password }}</td>
+                            <td>
+                                {% if perms.customers.change_credential %}
+                                    <a href="{% url 'customers:edit_credential' credential.id %}" class="btn btn-primary">Edit</a>
+                                {% endif %}
+                            </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
     </div>
 {% endblock %}

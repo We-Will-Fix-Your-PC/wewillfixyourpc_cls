@@ -3,5 +3,6 @@ from . import views
 
 app_name = 'cls'
 urlpatterns = [
-    path('', views.index, name='index')
+    path('', views.index, name='index'),
+    path('search', views.search, name='search'),
 ]

@@ -1,13 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 import django_keycloak_auth.users
 from . import forms
+from . import models
 import json
 import keycloak
+import urllib.parse
 
 
 @login_required
+@permission_required('customers.view_customer', raise_exception=True)
 def view_customers(request):
     customers = list(
         map(
@@ -26,13 +29,20 @@ def view_customers(request):
 
 
 @login_required
+@permission_required('customers.view_customer', raise_exception=True)
 def view_customer(request, customer_id):
     try:
         user = django_keycloak_auth.users.get_user_by_id(customer_id).get()
     except keycloak.exceptions.KeycloakClientError:
         raise Http404()
+    address = user.get("attributes", {}).get("address", [])
+    address = address[0] if len(address) else None
+    credentials = models.Credential.objects.filter(customer=customer_id) \
+        if request.user.has_perm("customers.view_credential") else []
     return render(request, "customer/customer.html", {
-        "customer": user
+        "customer": user,
+        "address": json.loads(address) if address else None,
+        "credentials": credentials
     })
 
 
@@ -41,6 +51,7 @@ def transform_customer_form(form, phone_numbers):
         "first_name": form.cleaned_data["first_name"],
         "last_name": form.cleaned_data["last_name"],
         "email": form.cleaned_data["email"],
+        "enabled": form.cleaned_data["enabled"],
         "phone": list(
             map(
                 lambda p: p["phone_number"].as_e164,
@@ -66,6 +77,7 @@ def transform_customer_form(form, phone_numbers):
 
 
 @login_required
+@permission_required('customers.change_customer', raise_exception=True)
 def edit_customer(request, customer_id):
     if request.method == 'POST':
         form = forms.CustomerForm(request.POST, prefix="primary")
@@ -90,6 +102,7 @@ def edit_customer(request, customer_id):
                 "first_name": user.get("firstName"),
                 "last_name": user.get("lastName"),
                 "email": user.get("email"),
+                "enabled": user.get("enabled"),
                 "address_line_1": address.get("line_1"),
                 "address_line_2": address.get("line_2"),
                 "address_line_3": address.get("line_3"),
@@ -107,11 +120,12 @@ def edit_customer(request, customer_id):
     return render(request, "customer/customer_form.html", {
         "form": form,
         "phone_numbers": phone_numbers,
-        "title": "New Customer"
+        "title": "Edit customer"
     })
 
 
 @login_required
+@permission_required('customers.add_customer', raise_exception=True)
 def new_customer(request):
     if request.method == 'POST':
         form = forms.CustomerForm(request.POST, prefix="primary")
@@ -120,13 +134,62 @@ def new_customer(request):
             user = django_keycloak_auth.users.get_or_create_user(**transform_customer_form(form, phone_numbers))
             django_keycloak_auth.users.link_roles_to_user(user.get("id"), ["customer"])
 
-            return redirect("customers:view_customers")
+            if not request.GET.get("next"):
+                return redirect("customers:view_customers")
+            else:
+                response = redirect(request.GET["next"])
+                response["Location"] += "?" + urllib.parse.urlencode({
+                    "customer_id": user.get("id")
+                })
+                return response
     else:
-        form = forms.CustomerForm(prefix="primary")
+        form = forms.CustomerForm(prefix="primary", initial={
+            "first_name": request.GET.get("customer_name", "")
+        })
         phone_numbers = forms.CustomerPhoneFormSet()
 
     return render(request, "customer/customer_form.html", {
         "form": form,
         "phone_numbers": phone_numbers,
-        "title": "New Customer"
+        "title": "New customer",
+    })
+
+
+@login_required
+@permission_required('customers.change_credential', raise_exception=True)
+def edit_credential(request, credential_id):
+    credential = get_object_or_404(models.Credential, id=credential_id)
+
+    if request.method == 'POST':
+        form = forms.CredentialForm(request.POST, instance=credential)
+
+        if form.is_valid():
+            form.save()
+            return redirect("customers:view_customer", credential.customer)
+    else:
+        form = forms.CredentialForm(instance=credential)
+
+    return render(request, "customer/credential_form.html", {
+        "form": form,
+        "title": "Edit credential"
+    })
+
+
+@login_required
+@permission_required('customers.add_credential', raise_exception=True)
+def new_credential(request, customer_id):
+    credential = models.Credential(customer=customer_id)
+
+    if request.method == 'POST':
+        form = forms.CredentialForm(request.POST, instance=credential)
+
+        if form.is_valid():
+            form.save()
+            return redirect("customers:view_customer", credential.customer)
+    else:
+        form = forms.CredentialForm(instance=credential)
+
+    return render(request, "customer/credential_form.html", {
+        "form": form,
+        "title": "New credential"
     })

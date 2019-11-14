@@ -15,11 +15,12 @@
                             {{ form.first_name|as_crispy_field }}
                             {{ form.last_name|as_crispy_field }}
                             {{ form.email|as_crispy_field }}
+                            {{ form.enabled|as_crispy_field }}
                             <h4>Phone numbers</h4>
                             {{ phone_numbers.management_form }}
                             {% for phone_form in phone_numbers %}
                                 {{ phone_form.phone_number.errors }}
-                                <div class="input-group mb-3 phone_form_row">
+                                <div class="input-group mb-3 phone_form_row form-row">
                                     <input class="form-control" type="text"
                                            name="{{ phone_form.phone_number.html_name }}"
                                            value="{% if phone_form.phone_number.value %}{{ phone_form.phone_number.value }}{% endif %}"
@@ -90,11 +91,12 @@
         }
 
         function deleteForm(prefix, btn) {
-            const total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+            const $total = $('#id_' + prefix + '-TOTAL_FORMS');
+            const total = parseInt($total.val());
             if (total > 1) {
                 btn.closest('.form-row').remove();
                 const forms = $('.phone_form_row');
-                $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+                $total.val(forms.length);
                 for (let i = 0, formCount = forms.length; i < formCount; i++) {
                     $(forms.get(i)).find(':input').each(function () {
                         updateElementIndex(this, prefix, i);

@@ -1,0 +1,48 @@
+<table class="table mt-3">
+    <thead>
+    <tr>
+        <th></th>
+        <th>ID</th>
+        <th>Date updated</th>
+        <th>To do by</th>
+        <th>Customer name</th>
+        <th>Equipment</th>
+        <th>Location</th>
+        <th>Status</th>
+        <th>Assigned to</th>
+        <th>Booked by</th>
+        <th>Quote</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ticket in tickets %}
+        {% with customer=ticket.get_customer.user assigned_to=ticket.get_assigned_to.user booked_by=ticket.get_booked_by.user %}
+            <tr>
+                <td><input type="checkbox" name="select-ticket-{{ ticket.id }}"></td>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.date_updated }}</td>
+                <td>{% if ticket.to_do_by %}{{ ticket.to_do_by }}{% else %}N/A{% endif %}</td>
+                <td>
+                    {% if perms.customers.view_customer %}
+                        <a href="{% url 'customers:view_customer' customer.id %}">{{ customer.firstName }} {{ customer.lastName }}</a>
+                    {% else %}
+                        {{ customer.firstName }} {{ customer.lastName }}
+                    {% endif %}
+                </td>
+                <td>{{ ticket.equipment.name }}</td>
+                <td>{{ ticket.location.name }}</td>
+                <td>{{ ticket.status.name }}</td>
+                <td>{{ assigned_to.firstName }}</td>
+                <td>{{ booked_by.firstName }}</td>
+                <td>{% if ticket.quote %}{{ ticked.quote }}{% else %}N/A{% endif %}</td>
+                <td>
+                    {% if perms.tickets.change_ticket %}
+                        <a href="{% url 'tickets:edit_ticket' ticket.id %}" class="btn btn-primary">Edit</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endwith %}
+    {% endfor %}
+    </tbody>
+</table>

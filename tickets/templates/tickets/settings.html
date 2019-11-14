@@ -1,0 +1,211 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Ticket settings</h1>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    <h4>Equipment types</h4>
+                    {{ equipment_types.management_form }}
+                    {% for error in equipment_types.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                    {% for equipment_type in equipment_types %}
+                        <div class="input-group mb-3 equipment_type_row form-row">
+                            <input type="hidden" name="{{ equipment_type.id.html_name }}"
+                                   value="{% if equipment_type.id.value %}{{ equipment_type.id.value }}{% endif %}">
+                            <input type="checkbox" class="delete" style="display: none" name="{{ equipment_type.DELETE.html_name }}">
+                            <input class="form-control" type="text"
+                                   name="{{ equipment_type.name.html_name }}"
+                                   value="{% if equipment_type.name.value %}{{ equipment_type.name.value }}{% endif %}"
+                            >
+                            <div class="input-group-append">
+                                <button class="btn btn-danger remove_equipment_type" type="button">-</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="row mb-4">
+                        <div class="col">
+                            <button class="btn btn-success" id="add_equipment_type" type="button">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <h4>Statuses</h4>
+                    {{ statuses.management_form }}
+                    {% for error in statuses.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                    {% for status in statuses %}
+                        <div class="input-group mb-3 status_row form-row">
+                            <input type="hidden" name="{{ status.id.html_name }}"
+                                   value="{% if status.id.value %}{{ status.id.value }}{% endif %}">
+                            <input type="checkbox" class="delete" style="display: none" name="{{ status.DELETE.html_name }}">
+                            <input class="form-control" type="text"
+                                   name="{{ status.name.html_name }}"
+                                   value="{% if status.name.value %}{{ status.name.value }}{% endif %}"
+                            >
+                            <div class="input-group-append">
+                                <button class="btn btn-danger remove_status" type="button">-</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="row mb-4">
+                        <div class="col">
+                            <button class="btn btn-success" id="add_status" type="button">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h4>OS Types</h4>
+                    {{ os_types.management_form }}
+                    {% for error in os_types.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                    {% for os_type in os_types %}
+                        <div class="input-group mb-3 os_type_row form-row">
+                            <input type="hidden" name="{{ os_type.id.html_name }}"
+                                   value="{% if os_type.id.value %}{{ os_type.id.value }}{% endif %}">
+                            <input type="checkbox" class="delete" style="display: none" name="{{ os_type.DELETE.html_name }}">
+                            <input class="form-control" type="text"
+                                   name="{{ os_type.name.html_name }}"
+                                   value="{% if os_type.name.value %}{{ os_type.name.value }}{% endif %}"
+                            >
+                            <div class="input-group-append">
+                                <button class="btn btn-danger remove_os_type" type="button">-</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="row mb-4">
+                        <div class="col">
+                            <button class="btn btn-success" id="add_os_type" type="button">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <h4>Locations</h4>
+                    {{ locations.management_form }}
+                    {% for error in locations.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                    {% for location in locations %}
+                        <div class="input-group mb-3 location_row form-row">
+                            <input type="hidden" name="{{ location.id.html_name }}"
+                                   value="{% if location.id.value %}{{ location.id.value }}{% endif %}">
+                            <input type="checkbox" class="delete" style="display: none" name="{{ location.DELETE.html_name }}">
+                            <input class="form-control" type="text"
+                                   name="{{ location.name.html_name }}"
+                                   value="{% if location.name.value %}{{ location.name.value }}{% endif %}"
+                            >
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <input type="checkbox" name="{{ location.os_required.html_name }}"
+                                            {% if location.os_required.value %}checked=""{% endif %}
+                                    >
+                                    OS Required
+                                </div>
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-danger remove_location" type="button">-</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="row mb-4">
+                        <div class="col">
+                            <button class="btn btn-success" id="add_location" type="button">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        function cloneMore(selector, prefix) {
+            const newElement = $(selector).clone(true);
+            const $total = $('#id_' + prefix + '-TOTAL_FORMS');
+            let total = $total.val();
+            newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function () {
+                const name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
+                const id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+            });
+            newElement.find('label').each(function () {
+                let forValue = $(this).attr('for');
+                if (forValue) {
+                    forValue = forValue.replace('-' + (total - 1) + '-', '-' + total + '-');
+                    $(this).attr({'for': forValue});
+                }
+            });
+            total++;
+            $total.val(total);
+            $(selector).after(newElement);
+            const conditionRow = $('.form-row:not(:last)');
+            conditionRow.find('.btn.add-form-row')
+                .removeClass('btn-success').addClass('btn-danger')
+                .removeClass('add-form-row').addClass('remove-form-row')
+                .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
+            return false;
+        }
+
+        function deleteForm(btn) {
+            const $row = btn.closest('.form-row');
+            $row.css("display", "none");
+            $row.find("input.delete").attr("checked", true);
+            return false;
+        }
+
+        $(document).on('click', '#add_equipment_type', function (e) {
+            e.preventDefault();
+            cloneMore('.equipment_type_row:last', 'equipment_type');
+            return false;
+        });
+        $(document).on('click', '.remove_equipment_type', function (e) {
+            e.preventDefault();
+            deleteForm($(this));
+            return false;
+        });
+
+        $(document).on('click', '#add_status', function (e) {
+            e.preventDefault();
+            cloneMore('.status_row:last', 'status');
+            return false;
+        });
+        $(document).on('click', '.remove_status', function (e) {
+            e.preventDefault();
+            deleteForm($(this));
+            return false;
+        });
+
+        $(document).on('click', '#add_os_type', function (e) {
+            e.preventDefault();
+            cloneMore('.os_type_row:last', 'os_type');
+            return false;
+        });
+        $(document).on('click', '.remove_os_type', function (e) {
+            e.preventDefault();
+            deleteForm($(this));
+            return false;
+        });
+
+        $(document).on('click', '#add_location', function (e) {
+            e.preventDefault();
+            cloneMore('.location_row:last', 'location');
+            return false;
+        });
+        $(document).on('click', '.remove_location', function (e) {
+            e.preventDefault();
+            deleteForm($(this));
+            return false;
+        });
+    </script>
+{% endblock %}

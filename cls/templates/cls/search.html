@@ -1,0 +1,69 @@
+{% extends 'cls/base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Search results</h1>
+        <hr>
+        <h2>Customers</h2>
+        <table class="table mt-3">
+            <thead>
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Email</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for customer in customers %}
+                <tr>
+                    <td>{{ customer.firstName }}</td>
+                    <td>{{ customer.lastName }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>
+                        <a href="{% url 'customers:view_customer' customer.id %}" class="btn btn-success mr-1">View</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <hr>
+        <h2>Tickets</h2>
+        <table class="table mt-3">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer name</th>
+                <th>Equipment</th>
+                <th>Status</th>
+                <th>Assigned to</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets %}
+                {% with customer=ticket.get_customer.user assigned_to=ticket.get_assigned_to.user booked_by=ticket.get_booked_by.user %}
+                    <tr>
+                        <td>{{ ticket.id }}</td>
+                        <td>
+                            {% if perms.customers.view_customer %}
+                                <a href="{% url 'customers:view_customer' customer.id %}">{{ customer.firstName }} {{ customer.lastName }}</a>
+                            {% else %}
+                                {{ customer.firstName }} {{ customer.lastName }}
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.equipment.name }}</td>
+                        <td>{{ ticket.status.name }}</td>
+                        <td>{{ assigned_to.firstName }}</td>
+                        <td>
+                            {% if perms.tickets.change_ticket %}
+                                <a href="{% url 'tickets:edit_ticket' ticket.id %}" class="btn btn-primary">Edit</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
