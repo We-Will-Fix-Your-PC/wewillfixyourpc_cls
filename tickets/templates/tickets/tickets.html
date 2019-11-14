@@ -1,0 +1,53 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Tickets</h1>
+        {% if perms.tickets.add_ticket %}
+            <a class="btn btn-success" href="{% url 'tickets:new' %}">New ticket</a>
+        {% endif %}
+        <a class="btn btn-secondary" href="{% url 'tickets:settings' %}">Settings</a>
+        <hr>
+        <form action="" method="post">
+            {% csrf_token %}
+            {% if perms.tickets.change_ticket %}
+                <button type="submit" class="btn btn-primary" name="set" value="Completed">Set completed</button>
+                <button type="submit" class="btn btn-primary" name="set" value="Collected">Set collected</button>
+            {% endif %}
+            <ul class="nav nav-tabs mt-3" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tickets_today" role="tab">Today</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tickets_ongoing" role="tab">Ongoing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tickets_completed" role="tab">Completed</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="tickets_today" role="tabpanel">
+                    <h2>Today</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=today_tickets %}
+                    <h2>Normal</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=normal_tickets %}
+                    <h2>Rebuild</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=rebuild_tickets %}
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="tickets_ongoing" role="tabpanel">
+                    <h2>Awaiting Customer Decision</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=awaiting_customer_decision_tickets %}
+                    <h2>Awaiting Parts</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=awaiting_parts_tickets %}
+                    <h2>Looking for parts</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=looking_for_parts_tickets %}
+                </div>
+                <div class="tab-pane fade" id="tickets_completed" role="tabpanel">
+                    <h2>Completed</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=completed_tickets %}
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "cls/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>{{ title }}</h1>
+        <div class="row">
+            <div class="col">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    {% if form.instance %}
+                        <div class="row">
+                            <div class="col">
+                                <b>ID:</b> {{ form.instance.id }}
+                            </div>
+                            <div class="col">
+                                <b>Date:</b> {{ form.instance.date }}
+                            </div>
+                            <div class="col">
+                                {% with customer=form.instance.get_customer.user %}
+                                <b>Customer: </b> <a href="{% url 'customers:view_customer' customer.id%}">
+                                    {{ customer.firstName }} {{ customer.lastName }}
+                                </a>
+                                {% endwith %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col">
+                            {{ form.equipment|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.status|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.location|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {{ form.booked_by|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.assigned_to|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.current_os|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.wanted_os|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-1">
+                            {{ form.has_charger|as_crispy_field }}
+                            {{ form.has_case|as_crispy_field }}
+                        </div>
+                        <div class="col-2">
+                            {{ form.additional_labels|as_crispy_field }}
+                        </div>
+                        <div class="col-4">
+                            {{ form.other_equipment|as_crispy_field }}
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                {{ form.to_do_by.errors }}
+                                {{ form.to_do_by.label_tag }}
+                                <input class="form-control" type="date"
+                                       id="{{ form.to_do_by.id_for_label }}"
+                                       name="{{ form.to_do_by.html_name }}"
+                                       value="{% if form.to_do_by.value %}{{ form.to_do_by.value }}{% endif %}"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            {{ form.quote|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.whats_it_doing.errors }}
+                                {{ form.whats_it_doing.label_tag }}
+                                <br>
+                                <em>Only enter what it is doing upon arrival!</em>
+                                <br>
+                                {{ form.whats_it_doing }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.work_done.errors }}
+                                {{ form.work_done.label_tag }}
+                                <br>
+                                {{ form.work_done }}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ form.media }}
+{% endblock %}

@@ -3,8 +3,8 @@
 {% block content %}
     <div class="container mt-4">
         <h1>Customers</h1>
-        <a class="btn btn-success" href="{% url 'customers:new' %}">New customer</a>
         {% if perms.customers.add_customer %}
+            <a class="btn btn-success" href="{% url 'customers:new' %}">New customer</a>
             <span><b>Code for self checkin:</b> <span id="totp">...</span></span>
         {% endif %}
         <table class="table mt-3">
@@ -15,6 +15,7 @@
                     <th>Email</th>
                     <th>Username</th>
                     <th>Phone</th>
+                    <th>Enabled</th>
                     <th></th>
                 </tr>
             </thead>
@@ -26,9 +27,12 @@
                         <td>{{ customer.email }}</td>
                         <td>{{ customer.username }}</td>
                         <td>{{ customer.attributes.phone|join:", " }}</td>
+                        <td><i class="material-icons">{% if customer.enabled %}check_box{% else %}check_box_outline_blank{% endif %}</i></td>
                         <td>
                             <a href="{% url 'customers:view_customer' customer.id %}" class="btn btn-success mr-1">View</a>
-                            <a href="{% url 'customers:edit_customer' customer.id %}" class="btn btn-primary">Edit</a>
+                            {% if perms.customers.change_customer %}
+                                <a href="{% url 'customers:edit_customer' customer.id %}" class="btn btn-primary">Edit</a>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

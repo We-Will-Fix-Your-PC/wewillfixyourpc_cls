@@ -18,8 +18,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
     path('', include('cls.urls')),
     path('customers/', include('customers.urls', namespace='customers')),
     path('checkin/', include('checkin.urls', namespace='checkin')),
+    path('tickets/', include('tickets.urls', namespace='tickets')),
     path("auth/", include("django_keycloak_auth.urls")),
 ]

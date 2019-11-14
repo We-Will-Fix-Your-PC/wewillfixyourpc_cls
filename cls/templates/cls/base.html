@@ -7,6 +7,8 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -26,15 +28,13 @@
                 <li class="nav-item{% if request.get_full_path == customers_url %} active{% endif %}">
                     <a class="nav-link" href="{{ customers_url }}">Customers</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Tickets</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Documentation</a>
+                {% url 'tickets:view_tickets' as tickets_url %}
+                <li class="nav-item{% if request.get_full_path == tickets_url %} active{% endif %}">
+                    <a class="nav-link" href="{{ tickets_url }}">Tickets</a>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <form class="form-inline my-2 my-lg-0" method="get" action="{% url 'cls:search' %}">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="q">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
         </div>

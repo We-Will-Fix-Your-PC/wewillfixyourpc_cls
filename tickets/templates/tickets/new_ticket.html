@@ -1,0 +1,92 @@
+{% extends 'cls/base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>New ticket</h1>
+        <div class="row">
+            <div class="col">
+                <h2>Search or create a new customer</h2>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Customers name</label>
+                        <input type="text" class="form-control rounded-bottom-0" id="name" name="name" autocomplete="off">
+                        <div id="autofill">
+                        </div>
+                    </div>
+                    <input type="hidden" name="customer-id" id="customer-id" value="">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <div class="col">
+                <h2>Recently completed self check-ins</h2>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #autofill {
+            border: 1px solid #444;
+            display: none;
+        }
+
+        #autofill div {
+            border-bottom: 1px solid #aaa;
+            cursor: pointer;
+        }
+        #autofill div:hover {
+            background: #ccc;
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {% csrf_token %}
+    <script type="text/javascript">
+        var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+        function csrfSafeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        $("#name").on("keyup", function (e) {
+            const val = e.currentTarget.value;
+            if (val.length) {
+                $.post({
+                    url: "{% url 'tickets:search_customer' %}",
+                    data: {
+                        name: val
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.length) {
+                            let html = "";
+                            data.forEach(function (user) {
+                                html += `<div data-id="${user.id}" data-name="${user.firstName} ${user.lastName}">${user.firstName} ${user.lastName}</div>`;
+                            });
+                            $("#autofill").css("display", "block").html(html);
+                        } else {
+                            $("#autofill").css("display", "none");
+                        }
+                    }
+                })
+            } else {
+                $("#autofill").css("display", "none");
+            }
+        });
+
+        $("#autofill").on("click", "div", function (e) {
+            const id = $(e.currentTarget).data("id");
+            const name = $(e.currentTarget).data("name");
+            $("#autofill").css("display", "none");
+            $("#name").val(name);
+            $("#customer-id").val(id);
+        })
+    </script>
+{% endblock %}

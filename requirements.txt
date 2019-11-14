@@ -2,3 +2,5 @@ django-phonenumber-field
 django-crispy-forms
 phonenumbers
 pyotp
+django-ckeditor
+git+https://github.com/TheEnbyperor/python-brotherprint

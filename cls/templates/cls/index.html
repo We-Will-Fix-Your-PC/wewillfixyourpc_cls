@@ -8,8 +8,12 @@
         </div>
         <div class="row">
             <div class="col border p-2 rounded-sm">
-                <a href="{% url "customers:new" %}" class="btn btn-primary btn-lg btn-block">New customer</a>
-                <button type="button" class="btn btn-primary btn-lg btn-block">New ticket</button>
+                {% if perms.customers.add_customer %}
+                    <a href="{% url "customers:new" %}" class="btn btn-primary btn-lg btn-block">New customer</a>
+                {% endif %}
+                {% if perms.tickets.add_ticket %}
+                    <a href="{% url "tickets:new" %}" class="btn btn-primary btn-lg btn-block">New ticket</a>
+                {% endif %}
             </div>
             <div class="col">
 

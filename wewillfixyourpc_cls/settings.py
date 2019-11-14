@@ -47,7 +47,10 @@ INSTALLED_APPS = [
     'cls',
     'customers',
     'checkin',
+    'tickets',
     'crispy_forms',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -149,3 +152,14 @@ KEYCLOAK_REALM = keycloak_conf["realm"]
 OIDC_CLIENT_ID = keycloak_conf["client_id"]
 OIDC_CLIENT_SECRET = keycloak_conf["client_secret"]
 OIDC_SCOPES = keycloak_conf["scopes"]
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'width': '100%',
+        'skin': 'office2013',
+    },
+}
+
+LABEL_PRINTER_IP = None
