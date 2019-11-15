@@ -152,7 +152,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 EXTERNAL_URL_BASE = os.getenv("EXTERNAL_URL", f"https://{ALLOWED_HOSTS[0]}")
 
-STATIC_URL = f"{EXTERNAL_URL_BASE}/static"
+STATIC_URL = f"{EXTERNAL_URL_BASE}/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_URL = f"{EXTERNAL_URL_BASE}/media/"
