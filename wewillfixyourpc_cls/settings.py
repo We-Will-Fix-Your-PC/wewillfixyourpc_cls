@@ -16,7 +16,7 @@ import logging
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 sentry_sdk.init(
     dsn="https://518037d272e5426895df091967e1b949@sentry.io/1821508",
@@ -150,8 +150,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
+EXTERNAL_URL_BASE = os.getenv("EXTERNAL_URL", f"https://{ALLOWED_HOSTS[0]}")
 
-STATIC_URL = '/static/'
+STATIC_URL = f"{EXTERNAL_URL_BASE}/static"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+MEDIA_URL = f"{EXTERNAL_URL_BASE}/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 PHONENUMBER_DEFAULT_REGION = 'GB'
 
