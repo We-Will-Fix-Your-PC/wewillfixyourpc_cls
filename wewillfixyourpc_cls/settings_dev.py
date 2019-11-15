@@ -13,17 +13,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import json
 import logging
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 
 logging.basicConfig(level=logging.DEBUG)
-
-sentry_sdk.init(
-    dsn="https://518037d272e5426895df091967e1b949@sentry.io/1821508",
-    environment=os.getenv("SENTRY_ENVIRONMENT", "dev"),
-    release=os.getenv("RELEASE", None),
-    integrations=[DjangoIntegration()]
-)
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -34,13 +25,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "")
-OTP_SECRET = os.getenv("OTP_SECRET", "")
+SECRET_KEY = '()%cgo!+bsth-2k=!6fp62d2$)o)-fr0r(9_1j57l-mi+#zt$e'
+OTP_SECRET = 'C6NHIELPLV7R3OCG'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = [os.getenv("HOST", "cardifftec.uk")]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -106,11 +97,8 @@ LOGOUT_REDIRECT_URL = "oidc_login"
 
 DATABASES = {
     'default': {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "NAME": os.getenv("DB_NAME", "cls"),
-        "USER": os.getenv("DB_USER", "cls"),
-        "PASSWORD": os.getenv("DB_PASS"),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -155,18 +143,16 @@ STATIC_URL = '/static/'
 
 PHONENUMBER_DEFAULT_REGION = 'GB'
 
-EMAIL_HOST = os.getenv("EMAIL_HOST")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", 25))
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", False)
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", False)
+with open(os.path.join(BASE_DIR, "secrets/keycloak.json")) as f:
+    keycloak_conf = json.load(f)
 
-KEYCLOAK_SERVER_URL = os.getenv("KEYCLOAK_SERVER_URL")
-KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM")
-OIDC_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID")
-OIDC_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET")
-OIDC_SCOPES = os.getenv("KEYCLOAK_SCOPES")
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+KEYCLOAK_SERVER_URL = keycloak_conf["server_url"]
+KEYCLOAK_REALM = keycloak_conf["realm"]
+OIDC_CLIENT_ID = keycloak_conf["client_id"]
+OIDC_CLIENT_SECRET = keycloak_conf["client_secret"]
+OIDC_SCOPES = keycloak_conf["scopes"]
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
@@ -177,4 +163,4 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-LABEL_PRINTER_IP = os.getenv("LABEL_PRINTER", None)
+LABEL_PRINTER_IP = None
