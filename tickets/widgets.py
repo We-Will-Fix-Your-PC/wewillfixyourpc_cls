@@ -71,4 +71,4 @@ class AgentWidget(forms.Select):
         pass
 
     def __deepcopy__(self, memodict={}):
-        return AgentWidget()
+        return AgentWidget(attrs=self.attrs)
