@@ -106,9 +106,9 @@ spec:
               prefix: "KEYCLOAK_"
       containers:
         - name: gunicorn
-          image: theenbyperor/wewillfixyourpcbot_django:(version)
+          image: theenbyperor/wwfypc-cls:(version)
           imagePullPolicy: Always
-          command: ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "--forwarded-allow-ips", "*", "--access-logfile", "-", "wewillfixyourpc_bot.wsgi:application"]
+          command: ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "--forwarded-allow-ips", "*", "--access-logfile", "-", "wewillfixyourpc_cls.wsgi:application"]
           ports:
             - containerPort: 8000
           volumeMounts:
@@ -126,24 +126,10 @@ spec:
                 name: db-creds
               prefix: "DB_"
             - secretRef:
-                name: rabbitmq-user
-              prefix: "CELERY_BROKER_"
-            - secretRef:
                 name: django-secret
-            - secretRef:
-                name: webpush-secrets
-            - secretRef:
-                name: facebook-secrets
-              prefix: "FACEBOOK_"
-            - secretRef:
-                name: twitter-secrets
-              prefix: "TWITTER_"
             - secretRef:
                 name: email-creds
               prefix: "EMAIL_"
-            - secretRef:
-                name: azure-creds
-              prefix: "AZURE_"
             - secretRef:
                 name: keycloak
               prefix: "KEYCLOAK_"
