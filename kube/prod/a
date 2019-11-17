@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  HOST_PASSWORD: clB6dF5TTWhTMW1eTDUhWHZLWlokUWYwQ09jYmFvXjA=
+  HOST_USER: bm9yZXBseUBub3JlcGx5Lndld2lsbGZpeHlvdXJwYy5jby51aw==
+  PORT: NTg3
+  USE_TLS: dHJ1ZQ==
+kind: Secret
+metadata:
+  name: email-creds
+  namespace: cls-prod
+type: Opaque
