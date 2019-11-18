@@ -107,12 +107,7 @@ def search_customer(request):
             lambda u: query in u.get("firstName").lower().strip() or query in u.get("lastName").lower().strip(),
             map(
                 lambda u: u.user,
-                filter(
-                    lambda u: next(filter(
-                        lambda r: r.get('name') == 'customer', u.role_mappings.realm.get()
-                    ), False),
-                    django_keycloak_auth.users.get_users()
-                )
+                django_keycloak_auth.users.get_users()
             )
         )
     )

@@ -41,6 +41,7 @@ data:
   KEYCLOAK_REALM: wwfypc-staging
   KEYCLOAK_SCOPES: "openid email profile"
   KEYCLOAK_CLIENT_ID: "cls"
+  LABEL_PRINTER: "10.5.0.1"
 ---
 kind: ConfigMap
 apiVersion: v1
