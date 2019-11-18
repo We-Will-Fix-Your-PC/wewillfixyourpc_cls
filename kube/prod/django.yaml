@@ -32,7 +32,7 @@ metadata:
   name: django-conf
   namespace: cls-prod
 data:
-  HOST: staging.cardifftec.uk
+  HOST: 2.cardifftec.uk
   DJANGO_SETTINGS_MODULE: wewillfixyourpc_cls.settings
   EXTERNAL_URL: "https://2.cardifftec.uk"
   SENTRY_ENVIRONMENT: "prod"
