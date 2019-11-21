@@ -19,7 +19,7 @@
                                 <b>Date:</b> {{ form.instance.date }}
                             </div>
                             <div class="col">
-                                {% with customer=form.instance.get_customer.user %}
+                                {% with customer=form.instance.get_customer %}
                                 <b>Customer: </b> <a href="{% url 'customers:view_customer' customer.id%}">
                                     {{ customer.firstName }} {{ customer.lastName }}
                                 </a>

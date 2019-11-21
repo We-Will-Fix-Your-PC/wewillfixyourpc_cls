@@ -8,3 +8,5 @@ git+https://github.com/TheEnbyperor/python-brotherprint
 git+https://github.com/TheEnbyperor/django-keycloak-auth
 psycopg2-binary
 gunicorn
+weasyprint
+jinja2

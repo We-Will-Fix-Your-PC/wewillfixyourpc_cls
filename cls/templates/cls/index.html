@@ -44,8 +44,8 @@
                                     <td>{{ repair.date_updated }}</td>
                                     <td>{{ repair.equipment.name }}</td>
                                     <td>{{ repair.status.name }}</td>
-                                    <td>{{ repair.get_assigned_to.user.firstName }}</td>
-                                    <td>{{ repair.get_booked_by.user.firstName }}</td>
+                                    <td>{{ repair.get_assigned_to.firstName }}</td>
+                                    <td>{{ repair.get_booked_by.firstName }}</td>
                                     <td>
                                         <a href="{% url 'tickets:view_ticket' repair.id %}" class="btn btn-success">View</a>
                                     </td>
