@@ -11,7 +11,7 @@
                 <b>Date:</b> {{ ticket.date }}
             </div>
             <div class="col">
-                {% with customer=ticket.get_customer.user %}
+                {% with customer=ticket.get_customer %}
                     <b>Customer: </b> {% if perms.customers.view_customer %}
                     <a href="{% url 'customers:view_customer' customer.id %}">{% endif %}
                 {{ customer.firstName }} {{ customer.lastName }}
@@ -34,18 +34,18 @@
         </div>
         <div class="row">
             <div class="col">
-                <b>Booked by: </b> {{ ticket.get_booked_by.user.firstName }}
-                {% if perms.tickets.view_ticket %}{{ ticket.get_booked_by.user.lastName }}{% endif %}
+                <b>Booked by: </b> {{ ticket.get_booked_by.firstName }}
+                {% if perms.tickets.view_ticket %}{{ ticket.get_booked_by.lastName }}{% endif %}
             </div>
             <div class="col">
-                <b>Assinged to: </b> {{ ticket.get_assigned_to.user.firstName }}
-                {% if perms.tickets.view_ticket %}{{ ticket.get_assigned_to.user.lastName }}{% endif %}
+                <b>Assinged to: </b> {{ ticket.get_assigned_to.firstName }}
+                {% if perms.tickets.view_ticket %}{{ ticket.get_assigned_to.lastName }}{% endif %}
             </div>
             <div class="col">
-                <b>Current OS:</b> {{ ticket.current_os.name }}
+                <b>Current OS:</b> {% if ticket.current_os %}{{ ticket.current_os.name }}{% else %}N/A{% endif %}
             </div>
             <div class="col">
-                <b>Wanted OS: </b>{{ ticket.wanted_os.name }}
+                <b>Wanted OS:</b> {% if ticket.wanted_os %}{{ ticket.wanted_os.name }}{% else %}N/A{% endif %}
             </div>
         </div>
         <div class="row">
@@ -64,14 +64,14 @@
                     check_box_outline_blank{% endif %}</i>
             </div>
             <div class="col-3">
-                <b>Other equipment:</b> {{ ticket.other_equipment }}
+                <b>Other equipment:</b> {% if ticket.other_equipment %}{{ ticket.other_equipment }}{% else %}N/A{% endif %}
             </div>
             {% if perms.tickets.view_ticket %}
                 <div class="col-3">
-                    <b>To do by:</b> {{ ticket.to_do_by }}
+                    <b>To do by:</b> {% if ticket.to_do_by %}{{ ticket.to_do_by }}{% else %}N/A{% endif %}
                 </div>
                 <div class="col-2">
-                    <b>Quote: </b> {{ ticket.quote }}
+                    <b>Quote: </b> {% if ticket.to_do_by %}{{ ticket.quote }}{% else %}N/A{% endif %}
                 </div>
             {% endif %}
         </div>

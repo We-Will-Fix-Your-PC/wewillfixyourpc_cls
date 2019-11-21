@@ -17,7 +17,7 @@
     </thead>
     <tbody>
     {% for ticket in tickets %}
-        {% with customer=ticket.get_customer.user booked_by=ticket.get_booked_by.user %}
+        {% with customer=ticket.get_customer booked_by=ticket.get_booked_by %}
             <tr>
                 <td><input type="checkbox" name="select-ticket-{{ ticket.id }}"></td>
                 <td>{{ ticket.id }}</td>
@@ -37,9 +37,13 @@
                 <td>{{ booked_by.firstName }} {{ booked_by.lastName }}</td>
                 <td>{% if ticket.quote %}{{ ticket.quote }}{% else %}N/A{% endif %}</td>
                 <td>
-                    {% if perms.tickets.change_ticket %}
-                        <a href="{% url 'tickets:edit_ticket' ticket.id %}" class="btn btn-primary">Edit</a>
-                    {% endif %}
+                    <div class="btn-group">
+                        <a href="{% url 'tickets:print_ticket' ticket.id %}" class="btn btn-primary btn-sm"><i class="material-icons">print</i></a>
+                        <a href="{% url 'tickets:print_receipt' ticket.id %}" class="btn btn-secondary btn-sm"><i class="material-icons">receipt</i></a>
+                        {% if perms.tickets.change_ticket %}
+                            <a href="{% url 'tickets:edit_ticket' ticket.id %}" class="btn btn-success btn-sm"><i class="material-icons">edit</i></a>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
         {% endwith %}

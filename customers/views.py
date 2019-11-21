@@ -35,6 +35,7 @@ def view_customer(request, customer_id):
         user = django_keycloak_auth.users.get_user_by_id(customer_id).get()
     except keycloak.exceptions.KeycloakClientError:
         raise Http404()
+    models.CustomerCache(cust_id=customer_id, data=json.dumps(user)).save()
     address = user.get("attributes", {}).get("address", [])
     address = address[0] if len(address) else None
     credentials = models.Credential.objects.filter(customer=customer_id) \
@@ -84,6 +85,7 @@ def edit_customer(request, customer_id):
         phone_numbers = forms.CustomerPhoneFormSet(request.POST)
         if form.is_valid() and phone_numbers.is_valid():
             django_keycloak_auth.users.update_user(customer_id, force_update=True, **transform_customer_form(form, phone_numbers))
+            models.CustomerCache.objects.filter(cust_id=customer_id).delete()
 
             return redirect("customers:view_customers")
     else:
@@ -132,6 +134,7 @@ def new_customer(request):
         phone_numbers = forms.CustomerPhoneFormSet(request.POST)
         if form.is_valid() and phone_numbers.is_valid():
             user = django_keycloak_auth.users.get_or_create_user(**transform_customer_form(form, phone_numbers))
+            models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
             django_keycloak_auth.users.link_roles_to_user(user.get("id"), ["customer"])
 
             if not request.GET.get("next"):

@@ -42,7 +42,7 @@
             </thead>
             <tbody>
             {% for ticket in tickets %}
-                {% with customer=ticket.get_customer.user assigned_to=ticket.get_assigned_to.user booked_by=ticket.get_booked_by.user %}
+                {% with customer=ticket.get_customer assigned_to=ticket.get_assigned_to booked_by=ticket.get_booked_by.user %}
                     <tr>
                         <td>{{ ticket.id }}</td>
                         <td>

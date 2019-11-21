@@ -2,6 +2,10 @@ from django.db import models
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.core.validators import ValidationError
 import django_keycloak_auth.users
+import datetime
+import json
+import customers.models
+from django.utils import timezone
 
 
 class EquipmentType(models.Model):
@@ -57,14 +61,25 @@ class Ticket(models.Model):
     def __str__(self):
         return f"#{self.id}"
 
+    @staticmethod
+    def _get_user(user_id):
+        expiry = timezone.now() - datetime.timedelta(minutes=10)
+        customer = customers.models.CustomerCache.objects.filter(cust_id=user_id, last_updated__gte=expiry) \
+            .order_by('-last_updated').first()
+        if customer:
+            return json.loads(customer.data)
+        user = django_keycloak_auth.users.get_user_by_id(user_id).user
+        customers.models.CustomerCache(cust_id=user_id, data=json.dumps(user)).save()
+        return user
+
     def get_customer(self):
-        return django_keycloak_auth.users.get_user_by_id(self.customer)
+        return self._get_user(self.customer)
 
     def get_assigned_to(self):
-        return django_keycloak_auth.users.get_user_by_id(self.assigned_to)
+        return self._get_user(self.assigned_to)
 
     def get_booked_by(self):
-        return django_keycloak_auth.users.get_user_by_id(self.booked_by)
+        return self._get_user(self.booked_by)
 
     def clean(self):
         if self.location.os_required:

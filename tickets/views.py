@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.conf import settings
 
-from . import forms, models
+from . import forms, models, print_label
 
 
 def print_labels(tid: str, name: str, extra: str, num=1):
@@ -123,14 +123,13 @@ def new_ticket_step2(request, customer_id):
         if form.is_valid():
             form.save()
 
-            customer = django_keycloak_auth.users.get_user_by_id(customer_id).user
-            extra = ",".join(customer.get("attributes", {}).get("phone", []))
             num = 1 + form.cleaned_data["additional_labels"]
             if form.cleaned_data["has_charger"]:
                 num += 1
             if form.cleaned_data["has_case"]:
                 num += 1
-            print_labels(form.instance.id, f'{customer.get("firstName")} {customer.get("lastName")}', extra, num)
+            driver = print_label.EscPosUsbDriver()
+            print_label.print_ticket_label(form.instance, driver, num)
 
             return redirect("tickets:view_tickets")
     else:
@@ -165,6 +164,28 @@ def edit_ticket(request, ticket_id):
         "form": form,
         "title": "Edit ticket"
     })
+
+
+@login_required
+@permission_required('tickets.view_ticket', raise_exception=True)
+def print_ticket_label(request, ticket_id):
+    ticket = get_object_or_404(models.Ticket, id=ticket_id)
+
+    driver = print_label.EscPosUsbDriver()
+    print_label.print_ticket_label(ticket, driver)
+
+    return redirect(request.META.get("HTTP_REFERER"))
+
+
+@login_required
+@permission_required('tickets.view_ticket', raise_exception=True)
+def print_ticket_receipt(request, ticket_id):
+    ticket = get_object_or_404(models.Ticket, id=ticket_id)
+
+    driver = print_label.EscPosUsbDriver()
+    print_label.print_ticket_receipt(ticket, driver)
+
+    return redirect(request.META.get("HTTP_REFERER"))
 
 
 @login_required
