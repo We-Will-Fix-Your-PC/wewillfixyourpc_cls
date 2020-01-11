@@ -33,15 +33,21 @@
                 <td>{{ ticket.equipment.name }}</td>
                 <td>{{ ticket.location.name }}</td>
                 <td>{{ ticket.status.name }}</td>
-                <td>{% if ticket.assigned_to %}{{ ticket.get_assigned_to.user.firstName }} {{ ticket.get_assigned_to.user.lastName }}{% else %}N/A{% endif %}</td>
+                <td>{% if ticket.assigned_to %}{{ ticket.get_assigned_to.firstName }} {{ ticket.get_assigned_to.lastName }}{% else %}N/A{% endif %}</td>
                 <td>{{ booked_by.firstName }} {{ booked_by.lastName }}</td>
                 <td>{% if ticket.quote %}{{ ticket.quote }}{% else %}N/A{% endif %}</td>
                 <td>
                     <div class="btn-group">
-                        <a href="{% url 'tickets:print_ticket' ticket.id %}" class="btn btn-primary btn-sm"><i class="material-icons">print</i></a>
-                        <a href="{% url 'tickets:print_receipt' ticket.id %}" class="btn btn-secondary btn-sm"><i class="material-icons">receipt</i></a>
+                        <a href="{% url 'tickets:print_ticket' ticket.id %}" class="btn btn-primary btn-sm" title="Print label">
+                            <i class="material-icons">print</i>
+                        </a>
+                        <a href="{% url 'tickets:print_receipt' ticket.id %}" class="btn btn-secondary btn-sm" title="Print receipt">
+                            <i class="material-icons">receipt</i>
+                        </a>
                         {% if perms.tickets.change_ticket %}
-                            <a href="{% url 'tickets:edit_ticket' ticket.id %}" class="btn btn-success btn-sm"><i class="material-icons">edit</i></a>
+                            <a href="{% url 'tickets:edit_ticket' ticket.id %}" class="btn btn-success btn-sm" title="Edit">
+                                <i class="material-icons">edit</i>
+                            </a>
                         {% endif %}
                     </div>
                 </td>

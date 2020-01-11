@@ -82,7 +82,13 @@
                         if (data.length) {
                             let html = "";
                             data.forEach(function (user) {
-                                html += `<div data-id="${user.id}" data-name="${user.firstName} ${user.lastName}">${user.firstName} ${user.lastName}</div>`;
+                                const first_name = user.firstName ? user.firstName : '';
+                                const last_name = user.lastName ? user.lastName : '';
+                                const email = user.email ? `(${user.email})` : '';
+                                const phone = (user.attributes ? user.attributes.phone ? user.attributes.phone : [] : []).join(",");
+                                html += `<div data-id="${user.id}" data-name="${user.firstName} ${user.lastName}">
+                                           ${first_name} ${last_name} ${email} ${phone}
+                                         </div>`;
                             });
                             $("#autofill").css("display", "block").html(html);
                         } else {

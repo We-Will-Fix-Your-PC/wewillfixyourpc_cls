@@ -22,6 +22,18 @@ class TicketForm(forms.ModelForm):
         }
 
 
+class JobForm(forms.ModelForm):
+    class Meta:
+        model = models.Job
+        fields = [
+            'assigned_to', 'title', 'description', 'to_do_by', 'completed'
+        ]
+        widgets = {
+            'assigned_to': widgets.AgentWidget(),
+            'description': RichTextUploadingFormField(required=False)
+        }
+
+
 EquipmentTypeFormSet = forms.modelformset_factory(models.EquipmentType, fields=('name',), can_delete=True)
 StatusFormSet = forms.modelformset_factory(models.Status, fields=('name',), can_delete=True)
 LocationFormSet = forms.modelformset_factory(models.Location, fields=('name', 'os_required'), can_delete=True)

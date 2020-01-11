@@ -6,7 +6,18 @@
         {% if perms.tickets.add_ticket %}
             <a class="btn btn-success" href="{% url 'tickets:new' %}">New ticket</a>
         {% endif %}
+        {% if perms.tickets.add_job %}
+            <a class="btn btn-success" href="{% url 'tickets:new_job' %}">New job</a>
+        {% endif %}
         <a class="btn btn-secondary" href="{% url 'tickets:settings' %}">Settings</a>
+        {% for a in agents %}
+            <div class="agent py-2 mr-2 rounded-circle" style="background-color: #6c757d; display: inline-block; width: 45px; height: 45px; text-align: center; position: relative">
+                <a href="{% url 'tickets:view_jobs' a.user.id %}" style="color: #fff">{{ a.user.firstName.0 }}{{ a.user.lastName.0 }}</a>
+                <div class="rounded-circle" style="background-color: #f8d7da; color: #7e1c3a; width: 25px; height: 25px; text-align: center; line-height: 25px; position: absolute; bottom: -7px; right: -5px">
+                    {{ a.count }}
+                </div>
+            </div>
+        {% endfor %}
         <hr>
         <form action="" method="post">
             {% csrf_token %}
@@ -22,6 +33,9 @@
                     <a class="nav-link" data-toggle="tab" href="#tickets_ongoing" role="tab">Ongoing</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tickets_rebuild" role="tab">Rebuild</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#tickets_completed" role="tab">Completed</a>
                 </li>
             </ul>
@@ -31,9 +45,6 @@
                     {% include 'tickets/ticket_table_template.html' with tickets=today_tickets %}
                     <h2>Normal</h2>
                     {% include 'tickets/ticket_table_template.html' with tickets=normal_tickets %}
-                    <h2>Rebuild</h2>
-                    {% include 'tickets/ticket_table_template.html' with tickets=rebuild_tickets %}
-                    </table>
                 </div>
                 <div class="tab-pane fade" id="tickets_ongoing" role="tabpanel">
                     <h2>Awaiting Customer Decision</h2>
@@ -42,6 +53,10 @@
                     {% include 'tickets/ticket_table_template.html' with tickets=awaiting_parts_tickets %}
                     <h2>Looking for parts</h2>
                     {% include 'tickets/ticket_table_template.html' with tickets=looking_for_parts_tickets %}
+                </div>
+                <div class="tab-pane fade" id="tickets_rebuild" role="tabpanel">
+                    <h2>Rebuild</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=rebuild_tickets %}
                 </div>
                 <div class="tab-pane fade" id="tickets_completed" role="tabpanel">
                     <h2>Completed</h2>

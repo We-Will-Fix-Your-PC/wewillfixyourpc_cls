@@ -53,7 +53,7 @@ class AgentWidget(forms.Select):
             map(
                 lambda u: (
                     u.get("id"),
-                    f'{u.get("firstName")} {u.get("lastName")} '
+                    f'{u.get("firstName", "")} {u.get("lastName", "")} '
                 ),
                 client._client.get(
                     url=client._client.get_full_url(

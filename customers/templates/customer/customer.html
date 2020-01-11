@@ -78,5 +78,13 @@
                 {% endif %}
             </div>
         </div>
+        {% if perms.tickets.view_ticket %}
+            <div class="row">
+                <div class="col">
+                    <h2>Tickets</h2>
+                    {% include 'tickets/ticket_table_template.html' with tickets=tickets %}
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

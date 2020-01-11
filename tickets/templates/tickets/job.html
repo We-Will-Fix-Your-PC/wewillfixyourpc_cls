@@ -1,0 +1,31 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>View job</h1>
+        <div class="row">
+            <div class="col">
+                <b>ID:</b> {{ job.id }}
+            </div>
+            <div class="col">
+                <b>Date:</b> {{ job.date }}
+            </div>
+            <div class="col">
+                <b>Completed:</b> <i class="material-icons">{% if job.completed %}check_box{% else %}check_box_outline_blank{% endif %}</i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <b>Title: </b> {{ job.equipment.name }}
+            </div>
+            <div class="col">
+                <b>Assigned to: </b> {{ job.get_assigned_to.firstName }} {{ job.get_assigned_to.lastName }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>Description</h3>
+                {{ job.description }}
+            </div>
+        </div>
+{% endblock %}

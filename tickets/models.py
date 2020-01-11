@@ -93,3 +93,29 @@ class Ticket(models.Model):
                 })
 
         super().clean()
+
+
+class Job(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    assigned_to = models.UUIDField()
+    title = models.CharField(max_length=255)
+    completed = models.BooleanField()
+    to_do_by = models.DateField(blank=True, null=True)
+    description = RichTextUploadingField(blank=True, null=True)
+
+    def __str__(self):
+        return f"#{self.id}"
+
+    @staticmethod
+    def _get_user(user_id):
+        expiry = timezone.now() - datetime.timedelta(minutes=10)
+        customer = customers.models.CustomerCache.objects.filter(cust_id=user_id, last_updated__gte=expiry) \
+            .order_by('-last_updated').first()
+        if customer:
+            return json.loads(customer.data)
+        user = django_keycloak_auth.users.get_user_by_id(user_id).user
+        customers.models.CustomerCache(cust_id=user_id, data=json.dumps(user)).save()
+        return user
+
+    def get_assigned_to(self):
+        return self._get_user(self.assigned_to)

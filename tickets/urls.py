@@ -11,5 +11,9 @@ urlpatterns = [
     path('new/', views.new_ticket, name="new"),
     path('new/<customer_id>', views.new_ticket_step2, name="new_step2"),
     path('settings/', views.ticket_settings, name="settings"),
-    path('search-customer/', views.search_customer, name="search_customer")
+    path('search-customer/', views.search_customer, name="search_customer"),
+    path('job/new', views.new_job, name="new_job"),
+    path('jobs/<user_id>', views.view_jobs, name="view_jobs"),
+    path('job/<job_id>/edit', views.edit_job, name="edit_job"),
+    path('job/<job_id>', views.view_job, name="view_job"),
 ]

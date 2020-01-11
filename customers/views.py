@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.contrib.auth.decorators import login_required, permission_required
 import django_keycloak_auth.users
+import tickets.models
 from . import forms
 from . import models
 import json
@@ -40,10 +41,13 @@ def view_customer(request, customer_id):
     address = address[0] if len(address) else None
     credentials = models.Credential.objects.filter(customer=customer_id) \
         if request.user.has_perm("customers.view_credential") else []
+    cust_tickets = tickets.models.Ticket.objects.filter(customer=customer_id) \
+        if request.user.has_perm("tickets.view_ticket") else []
     return render(request, "customer/customer.html", {
         "customer": user,
         "address": json.loads(address) if address else None,
-        "credentials": credentials
+        "credentials": credentials,
+        "tickets": cust_tickets
     })
 
 

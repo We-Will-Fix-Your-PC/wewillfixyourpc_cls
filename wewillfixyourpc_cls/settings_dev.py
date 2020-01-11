@@ -139,6 +139,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+EXTERNAL_URL_BASE = "http://localhost:8000"
 STATIC_URL = '/static/'
 
 PHONENUMBER_DEFAULT_REGION = 'GB'
@@ -164,3 +165,4 @@ CKEDITOR_CONFIGS = {
 }
 
 LABEL_PRINTER_IP = None
+PRINTER_DRIVER = 'tickets.print_label.DummyDriver'

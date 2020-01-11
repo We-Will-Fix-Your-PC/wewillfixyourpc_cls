@@ -3,6 +3,7 @@ import socket
 import urllib.parse
 
 import django_keycloak_auth.users
+import django_keycloak_auth.clients
 from brotherprint.brotherprint import BrotherPrint
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
@@ -64,6 +65,31 @@ def view_tickets(request):
         ~Q(location__name="Awaiting Parts"), ~Q(location__name="Looking for Parts"),
         ~Q(location__name="Completed"),
     )
+
+    client = django_keycloak_auth.clients.get_keycloak_admin_client()
+    client_id = next(
+            filter(
+                lambda c: c.get("clientId") == settings.OIDC_CLIENT_ID,
+                client.clients.all()
+            )
+    )
+
+    agents = list(
+        map(
+            lambda u: {
+                "user": u,
+                "count": models.Ticket.objects.filter(Q(assigned_to=u.get('id')), ~Q(location__name="Completed")).count() +
+                         models.Job.objects.filter(assigned_to=u.get('id'), completed=False).count()
+            },
+            client._client.get(
+                url=client._client.get_full_url(
+                    'auth/admin/realms/{realm}/clients/{id}/roles/{role_name}/users'
+                        .format(realm=client._name, id=client_id.get("id"), role_name="agent")
+                )
+            )
+        )
+    )
+
     return render(request, 'tickets/tickets.html', {
         "today_tickets": today_tickets,
         "normal_tickets": normal_tickets,
@@ -71,7 +97,8 @@ def view_tickets(request):
         "awaiting_customer_decision_tickets": awaiting_customer_decision_tickets,
         "awaiting_parts_tickets": awaiting_parts_tickets,
         "looking_for_parts_tickets": looking_for_parts_tickets,
-        "completed_tickets": completed_tickets
+        "completed_tickets": completed_tickets,
+        "agents": agents
     })
 
 
@@ -101,10 +128,11 @@ def search_customer(request):
     if not request.method == "POST":
         return HttpResponseNotAllowed(permitted_methods=["POST"])
 
-    query = request.POST.get("name").lower().strip()
+    query = request.POST.get("name").lower().strip().split(" ")
     customers = list(
         filter(
-            lambda u: query in u.get("firstName").lower().strip() or query in u.get("lastName").lower().strip(),
+            lambda u: any((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
+                           q in u.get("email", "").lower().strip()) for q in query),
             map(
                 lambda u: u.user,
                 django_keycloak_auth.users.get_users()
@@ -171,8 +199,7 @@ def edit_ticket(request, ticket_id):
 def print_ticket_label(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
 
-    driver = print_label.EscPosUsbDriver()
-    print_label.print_ticket_label(ticket, driver)
+    print_label.print_ticket_label(ticket)
 
     return redirect(request.META.get("HTTP_REFERER"))
 
@@ -182,8 +209,7 @@ def print_ticket_label(request, ticket_id):
 def print_ticket_receipt(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
 
-    driver = print_label.EscPosUsbDriver()
-    print_label.print_ticket_receipt(ticket, driver)
+    print_label.print_ticket_receipt(ticket)
 
     return redirect(request.META.get("HTTP_REFERER"))
 
@@ -244,4 +270,61 @@ def ticket_settings(request):
         "statuses": statuses,
         "locations": locations,
         "os_types": os_types,
+    })
+
+
+@login_required
+@permission_required('tickets.add_job', raise_exception=True)
+def new_job(request):
+    if request.method == 'POST':
+        form = forms.JobForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("tickets:view_tickets")
+    else:
+        form = forms.JobForm()
+
+    return render(request, "tickets/job_form.html", {
+        "form": form,
+        "title": "New job"
+    })
+
+
+@login_required
+@permission_required('tickets.change_job', raise_exception=True)
+def edit_job(request, job_id):
+    job = get_object_or_404(models.Job, id=job_id)
+    if request.method == 'POST':
+        form = forms.JobForm(request.POST, instance=job)
+        if form.is_valid():
+            form.save()
+            return redirect("tickets:view_tickets")
+    else:
+        form = forms.JobForm(instance=job)
+
+    return render(request, "tickets/job_form.html", {
+        "form": form,
+        "title": "Edit job"
+    })
+
+
+@login_required
+@permission_required('tickets.view_job', raise_exception=True)
+def view_job(request, job_id):
+    job = get_object_or_404(models.Job, id=job_id)
+    return render(request, "tickets/job.html", {
+        "job": job
+    })
+
+
+@login_required
+@permission_required('tickets.view_job', raise_exception=True)
+def view_jobs(request, user_id):
+    jobs = models.Job.objects.filter(assigned_to=user_id)
+    tickets = models.Ticket.objects.filter(assigned_to=user_id)
+    user = models.Job._get_user(user_id)
+    return render(request, "tickets/jobs.html", {
+        "jobs": jobs,
+        "tickets": tickets,
+        "user": user
     })

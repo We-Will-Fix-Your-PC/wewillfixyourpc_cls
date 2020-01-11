@@ -1,0 +1,64 @@
+{% extends "cls/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>{{ title }}</h1>
+        <div class="row">
+            <div class="col">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    {% if form.instance %}
+                        <div class="row">
+                            <div class="col">
+                                <b>ID:</b> {{ form.instance.id }}
+                            </div>
+                            <div class="col">
+                                <b>Date:</b> {{ form.instance.date }}
+                            </div>
+                            <div class="col">
+                                {{ form.completed|as_crispy_field }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col">
+                            {{ form.title|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.assigned_to|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.to_do_by.errors }}
+                                {{ form.to_do_by.label_tag }}
+                                <input class="form-control" type="date"
+                                       id="{{ form.to_do_by.id_for_label }}"
+                                       name="{{ form.to_do_by.html_name }}"
+                                       value="{% if form.to_do_by.value %}{{ form.to_do_by.value }}{% endif %}"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.description.errors }}
+                                {{ form.description.label_tag }}
+                                <br>
+                                {{ form.description }}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ form.media }}
+{% endblock %}

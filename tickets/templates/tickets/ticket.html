@@ -38,7 +38,7 @@
                 {% if perms.tickets.view_ticket %}{{ ticket.get_booked_by.lastName }}{% endif %}
             </div>
             <div class="col">
-                <b>Assinged to: </b> {{ ticket.get_assigned_to.firstName }}
+                <b>Assigned to: </b> {{ ticket.get_assigned_to.firstName }}
                 {% if perms.tickets.view_ticket %}{{ ticket.get_assigned_to.lastName }}{% endif %}
             </div>
             <div class="col">

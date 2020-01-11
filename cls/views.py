@@ -29,11 +29,12 @@ def index(request):
 @permission_required('customers.view_customer', raise_exception=True)
 @permission_required('tickets.view_ticket', raise_exception=True)
 def search(request):
-    query = request.GET.get("q").strip().lower()
+    query = request.GET.get("q").strip().lower().split(" ")
 
     customers = list(
         filter(
-            lambda u: query in u.get("firstName").lower().strip() or query in u.get("lastName").lower().strip(),
+            lambda u: any((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
+                           q in u.get("email", "").lower().strip()) for q in query),
             map(
                 lambda u: u.user,
                 filter(

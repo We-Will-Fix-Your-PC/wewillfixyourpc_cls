@@ -12,6 +12,8 @@ import struct
 import secrets
 import weasyprint
 import django_keycloak_auth.users
+from django.conf import settings
+import importlib
 from PIL import Image, ImageOps
 
 from . import models
@@ -218,27 +220,60 @@ class EscPosUsbDriver(LabelDriver):
         self._printer._raw(b''.join(outp))
 
 
-def print_ticket_label(ticket: models.Ticket, driver: LabelDriver, num=1):
+class DummyDriver(LabelDriver):
+    def __init__(self, width=384):
+        self._width = width
+
+    @property
+    def width(self):
+        return self._width
+
+    def start_print(self):
+        pass
+
+    def end_print(self):
+        pass
+
+    def print_image(self, im: Image.Image):
+        pass
+
+
+def _get_default_driver(driver: LabelDriver=None):
+    if driver:
+        return driver
+
+    module_name, class_name = settings.PRINTER_DRIVER.rsplit('.', 1)
+    return getattr(importlib.import_module(module_name), class_name)()
+
+
+def print_ticket_label(ticket: models.Ticket, driver: LabelDriver=None, num=1):
+    driver = _get_default_driver(driver)
+
     doc = HTML(string=LABEL_TEMPLATE.render(id=ticket.id, customer=ticket.get_customer(), page_width=driver.width))\
         .render(enable_hinting=True)
     for i in range(num):
         driver.print_doc(doc)
 
 
-def print_ticket_receipt(ticket: models.Ticket, driver: LabelDriver, num=1):
+def print_ticket_receipt(ticket: models.Ticket, driver: LabelDriver=None, num=1):
+    driver = _get_default_driver(driver)
+
+    user = ticket.get_customer()
+    magic_key = django_keycloak_auth.users.get_user_magic_key(user.get("id"))
+    print(magic_key)
+
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=10,
         border=4,
     )
-    qr.add_data('https://2.cardifftec.uk')
+    qr.add_data(settings.EXTERNAL_URL_BASE)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     target = io.BytesIO()
     img.save(target, 'png')
     qr_b64 = base64.b64encode(target.getvalue()).decode()
 
-    user = ticket.get_customer()
     temp_pass = None
     if not user.get("email"):
         user = django_keycloak_auth.users.get_user_by_id(user.get("id"))
