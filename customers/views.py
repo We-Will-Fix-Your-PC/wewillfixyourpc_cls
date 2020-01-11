@@ -146,8 +146,11 @@ def new_customer(request):
                 })
                 return response
     else:
+        name = request.GET.get("customer_name", "").spilt(" ")
+
         form = forms.CustomerForm(prefix="primary", initial={
-            "first_name": request.GET.get("customer_name", "")
+            "first_name": name[0],
+            "last_name": " ".join(name[1:])
         })
         phone_numbers = forms.CustomerPhoneFormSet()
 
