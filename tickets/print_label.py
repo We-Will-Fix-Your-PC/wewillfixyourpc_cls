@@ -9,10 +9,13 @@ import base64
 import abc
 import qrcode
 import struct
-import secrets
 import weasyprint
+import requests
+import brother_ql.devicedependent
+import brother_ql.backends.helpers
 import django_keycloak_auth.users
 from django.conf import settings
+from django.shortcuts import reverse
 import importlib
 from PIL import Image, ImageOps
 
@@ -84,14 +87,14 @@ RECEIPT_TEMPLATE = jinja2.Template("""
               max-width: {{ page_width }}px;
               word-wrap: normal;
             }
-            p {
+            p, table {
                 font-size: 25px;
             }
             h2 {
                 font-size: 30px;
             }
             h1 {
-                font-size: 40px;
+                font-size: 40px;   
             }
         </style>
     </head>
@@ -101,20 +104,38 @@ RECEIPT_TEMPLATE = jinja2.Template("""
             39 Lambourne Crescent<br/>
             Cardiff, CF14 5GG<br/>
             (029) 2076 6039<br />
-            Any questions? Visit wewillfixyourpc.co.uk
+            Any questions?<br/>account-support@wewillfixyourpc.co.uk
         </p>
         <h2>Ticket #{{ ticket.id }}</h2>
         <h1>{{ ticket.get_customer().firstName }} {{ ticket.get_customer().lastName }}</h1>
-        <p>
-            <b>Date:</b> {{ ticket.date.strftime('%x') }}<br/>
-            <b>Time:</b> {{ ticket.date.strftime('%X') }}<br/>
-            <b>Equipment:</b> {{ ticket.equipment.name }}<br/>
-            <b>Booked by:</b> {{ ticket.get_booked_by().firstName }}<br/>
-            <b>Current OS:</b> {% if ticket.current_os %}{{ ticket.current_os.name }}{% else %}N/A{% endif %}<br/>
-            <b>Wanted OS:</b> {% if ticket.wanted_os %}{{ ticket.wanted_os.name }}{% else %}N/A{% endif %}<br/>
-            <b>Charger:</b> {% if ticket.has_charger %}Yes{% else %}No{% endif %}<br/>
-            <b>Case:</b> {% if ticket.has_case %}Yes{% else %}No{% endif %}<br/>
-            <b>Other equipment:</b> {% if ticket.other_equipment %}{{ ticket.other_equipment }}{% else %}N/A{% endif %}<br/>
+        <table>
+            <tr>
+                <th>Time<th>
+                <td colspan="3">{{ ticket.date.strftime('%x') }} {{ ticket.date.strftime('%X') }}</td>
+            </tr>
+            <tr>
+                <th>Equipment</th>
+                <td>{{ ticket.equipment.name }}</td>
+                <th>Booked by</th>
+                <td>{{ ticket.get_booked_by().firstName }}</td>
+            </tr>
+            <tr>
+                <th>Current OS</th>
+                <td>{% if ticket.current_os %}{{ ticket.current_os.name }}{% else %}N/A{% endif %}</td>
+                <th>Wanted OS</th>
+                <td>{% if ticket.wanted_os %}{{ ticket.wanted_os.name }}{% else %}N/A{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Charger</th>
+                <td>{% if ticket.has_charger %}Yes{% else %}No{% endif %}</td>
+                <th>Case</th>
+                <td>{% if ticket.has_case %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Other equipment</th>
+                <td colspan="3">{% if ticket.other_equipment %}{{ ticket.other_equipment }}{% else %}N/A{% endif %}</td>
+            </tr>
+        </table>
         </p>
         <p>
             Thank you for choosing<br/><b>We Will Fix Your PC</b><br/><br/>
@@ -125,11 +146,15 @@ RECEIPT_TEMPLATE = jinja2.Template("""
                 your <b>We Will Fix Your PC ID</b> have been sent to <em>{{ ticket.get_customer().email }}</em> if you
                 have not already setup your account.
             {% else %}
-                Your username is <em>{{ ticket.get_customer().username }}</em> and your temporary password is 
-                <em>{{ temp_pass }}</em>
+                Your username is <em>{{ ticket.get_customer().username }}</em>.
             {% endif %}
             <br/>
-            <img src="data:image/png;base64,{{ qr }}" />
+            <br/>
+            You can sign into your <b>We Will Fix Your PC ID</b> using your password and/or external providers such
+            as <em>Sign in with Google</em> and <em>Sign in with Apple</em>, or you can use the QR code/link below to
+             login for the next 7 days.<br/>
+            <img src="data:image/png;base64,{{ qr }}" /><br/>
+            <em>{{ url }}</em>
         </p>
     </body>
 </html>
@@ -181,7 +206,6 @@ class LabelDriver(abc.ABC):
             target.seek(0)
             im = Image.open(target)
             im.load()
-            im = convert_image(im)
             self.print_image(im)
         self.end_print()
 
@@ -204,6 +228,7 @@ class EscPosUsbDriver(LabelDriver):
         self._printer.text("\n" * 3)
 
     def print_image(self, im: Image.Image):
+        im = convert_image(im)
         outp = []
         header = escpos.constants.ESC + b"*\x21" + struct.pack("<H", im.width)
         im = im.transpose(Image.ROTATE_270).transpose(Image.FLIP_LEFT_RIGHT)
@@ -218,6 +243,29 @@ class EscPosUsbDriver(LabelDriver):
             outp.append(header + im_bytes + b"\n")
             left += line_height
         self._printer._raw(b''.join(outp))
+
+
+class BrotherDriver(LabelDriver):
+    def __init__(self, printer=None, model='QL-720NW', label='62'):
+        self._label_id = label
+        self._label = brother_ql.devicedependent.label_type_specs[label]
+        self._model = model
+        self._printer = printer
+        self._qrl = None
+
+    @property
+    def width(self):
+        return self._label['dots_printable'][0]//1.3
+
+    def start_print(self):
+        self._qrl = brother_ql.BrotherQLRaster(self._model)
+
+    def end_print(self):
+        brother_ql.backends.helpers.send(self._qrl.data, self._printer)
+        self._qrl = None
+
+    def print_image(self, im: Image.Image):
+        brother_ql.create_label(self._qrl, im, self._label_id, dither=True)
 
 
 class DummyDriver(LabelDriver):
@@ -238,15 +286,15 @@ class DummyDriver(LabelDriver):
         pass
 
 
-def _get_default_driver(driver: LabelDriver=None):
+def _get_default_driver(driver: LabelDriver = None):
     if driver:
         return driver
 
     module_name, class_name = settings.PRINTER_DRIVER.rsplit('.', 1)
-    return getattr(importlib.import_module(module_name), class_name)()
+    return getattr(importlib.import_module(module_name), class_name)(**settings.PRINTER_DRIVER_OPS)
 
 
-def print_ticket_label(ticket: models.Ticket, driver: LabelDriver=None, num=1):
+def print_ticket_label(ticket: models.Ticket, driver: LabelDriver = None, num=1):
     driver = _get_default_driver(driver)
 
     doc = HTML(string=LABEL_TEMPLATE.render(id=ticket.id, customer=ticket.get_customer(), page_width=driver.width))\
@@ -259,28 +307,37 @@ def print_ticket_receipt(ticket: models.Ticket, driver: LabelDriver=None, num=1)
     driver = _get_default_driver(driver)
 
     user = ticket.get_customer()
-    magic_key = django_keycloak_auth.users.get_user_magic_key(user.get("id"))
-    print(magic_key)
+    key = django_keycloak_auth.users.get_user_magic_key(user.get("id")).get('key')
+    url = f"{settings.EXTERNAL_URL_BASE}{reverse('oidc_login')}?key={key}"
+
+    r = requests.post("https://firebasedynamiclinks.googleapis.com/v1/shortLinks", params={
+        'key': settings.FIREBASE_URL_API_KEY
+    }, json={
+        "dynamicLinkInfo": {
+            "domainUriPrefix": "https://wwfypc.xyz",
+            "link": url,
+        },
+        "suffix": {
+            "option": "UNGUESSABLE"
+        }
+    })
+    print(r.text)
+    r.raise_for_status()
+    short_url = r.json().get("shortLink")
 
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=10,
         border=4,
     )
-    qr.add_data(settings.EXTERNAL_URL_BASE)
+    qr.add_data(short_url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     target = io.BytesIO()
     img.save(target, 'png')
     qr_b64 = base64.b64encode(target.getvalue()).decode()
 
-    temp_pass = None
-    if not user.get("email"):
-        user = django_keycloak_auth.users.get_user_by_id(user.get("id"))
-        temp_pass = secrets.token_hex(4)
-        user.reset_password(temp_pass, temporary=True)
-
-    doc = HTML(string=RECEIPT_TEMPLATE.render(ticket=ticket, qr=qr_b64, temp_pass=temp_pass, page_width=driver.width))\
+    doc = HTML(string=RECEIPT_TEMPLATE.render(ticket=ticket, qr=qr_b64, url=short_url, page_width=driver.width))\
         .render(enable_hinting=True)
     for i in range(num):
         driver.print_doc(doc)

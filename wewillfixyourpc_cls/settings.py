@@ -182,4 +182,11 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-LABEL_PRINTER_IP = os.getenv("LABEL_PRINTER", None)
+FIREBASE_URL_API_KEY = os.getenv("FIREBASE_URL_KEY")
+
+PRINTER_DRIVER = 'tickets.print_label.BrotherDriver'
+PRINTER_DRIVER_OPS = {
+    "printer": f"tcp://{os.getenv('LABEL_PRINTER', '')}:9100",
+    "model": "QL-720NW",
+    "label": "62"
+}

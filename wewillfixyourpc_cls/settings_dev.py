@@ -31,7 +31,7 @@ OTP_SECRET = 'C6NHIELPLV7R3OCG'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'wewillfixyourpc-cls.eu.ngrok.io']
 
 
 # Application definition
@@ -139,13 +139,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-EXTERNAL_URL_BASE = "http://localhost:8000"
+EXTERNAL_URL_BASE = "https://wewillfixyourpc-cls.eu.ngrok.io"
 STATIC_URL = '/static/'
 
 PHONENUMBER_DEFAULT_REGION = 'GB'
 
 with open(os.path.join(BASE_DIR, "secrets/keycloak.json")) as f:
     keycloak_conf = json.load(f)
+with open(os.path.join(BASE_DIR, "secrets/google.json")) as f:
+    google_conf = json.load(f)
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -154,6 +156,8 @@ KEYCLOAK_REALM = keycloak_conf["realm"]
 OIDC_CLIENT_ID = keycloak_conf["client_id"]
 OIDC_CLIENT_SECRET = keycloak_conf["client_secret"]
 OIDC_SCOPES = keycloak_conf["scopes"]
+
+FIREBASE_URL_API_KEY = google_conf["short_links"]
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
@@ -164,5 +168,12 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-LABEL_PRINTER_IP = None
-PRINTER_DRIVER = 'tickets.print_label.DummyDriver'
+# PRINTER_DRIVER = 'tickets.print_label.DummyDriver'
+# PRINTER_DRIVER_OPS = {}
+
+PRINTER_DRIVER = 'tickets.print_label.BrotherDriver'
+PRINTER_DRIVER_OPS = {
+    "printer": f"tcp://10.5.0.1:9100",
+    "model": "QL-720NW",
+    "label": "62"
+}

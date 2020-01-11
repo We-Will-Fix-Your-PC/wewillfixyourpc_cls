@@ -4,7 +4,7 @@ phonenumbers
 pyotp
 django-ckeditor
 sentry-sdk
-git+https://github.com/TheEnbyperor/python-brotherprint
+brother_ql
 git+https://github.com/TheEnbyperor/django-keycloak-auth
 psycopg2-binary
 gunicorn

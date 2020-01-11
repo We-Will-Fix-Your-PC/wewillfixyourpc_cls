@@ -4,7 +4,6 @@ import urllib.parse
 
 import django_keycloak_auth.users
 import django_keycloak_auth.clients
-from brotherprint.brotherprint import BrotherPrint
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseNotAllowed
@@ -13,25 +12,6 @@ from django.utils import timezone
 from django.conf import settings
 
 from . import forms, models, print_label
-
-
-def print_labels(tid: str, name: str, extra: str, num=1):
-    if settings.LABEL_PRINTER_IP:
-        f_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        f_socket.connect((settings.LABEL_PRINTER_IP, 9100))
-        printjob = BrotherPrint(f_socket)
-
-        printjob.template_mode()
-
-        for i in range(num):
-            printjob.template_init()
-            printjob.choose_template(0)
-            printjob.select_and_insert('field-1', tid)
-            printjob.select_and_insert('field-2', name)
-            printjob.select_and_insert('field-3', extra)
-            printjob.template_print()
-
-        f_socket.close()
 
 
 @login_required
@@ -156,8 +136,7 @@ def new_ticket_step2(request, customer_id):
                 num += 1
             if form.cleaned_data["has_case"]:
                 num += 1
-            driver = print_label.EscPosUsbDriver()
-            print_label.print_ticket_label(form.instance, driver, num)
+            print_label.print_ticket_label(form.instance, num=num)
 
             return redirect("tickets:view_tickets")
     else:
@@ -180,9 +159,7 @@ def edit_ticket(request, ticket_id):
 
             num = form.cleaned_data["additional_labels"]
             if num:
-                customer = django_keycloak_auth.users.get_user_by_id(ticket.customer).user
-                extra = ",".join(customer.get("attributes", {}).get("phone", []))
-                print_labels(form.instance.id, f'{customer.get("firstName")} {customer.get("lastName")}', extra, num)
+                print_label.print_ticket_label(ticket, num=num)
 
             return redirect("tickets:view_tickets")
     else:
