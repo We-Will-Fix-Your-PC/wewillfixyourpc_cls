@@ -105,6 +105,9 @@ spec:
             - secretRef:
                 name: keycloak
               prefix: "KEYCLOAK_"
+            - secretRef:
+                name: firebase
+              prefix: "FIREBASE_"
       containers:
         - name: gunicorn
           image: theenbyperor/wwfypc-cls:(version)
