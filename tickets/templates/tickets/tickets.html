@@ -10,14 +10,16 @@
             <a class="btn btn-success" href="{% url 'tickets:new_job' %}">New job</a>
         {% endif %}
         <a class="btn btn-secondary" href="{% url 'tickets:settings' %}">Settings</a>
-        {% for a in agents %}
-            <div class="agent py-2 mr-2 rounded-circle" style="background-color: #6c757d; display: inline-block; width: 45px; height: 45px; text-align: center; position: relative">
-                <a href="{% url 'tickets:view_jobs' a.user.id %}" style="color: #fff">{{ a.user.firstName.0 }}{{ a.user.lastName.0 }}</a>
-                <div class="rounded-circle" style="background-color: #f8d7da; color: #7e1c3a; width: 25px; height: 25px; text-align: center; line-height: 25px; position: absolute; bottom: -7px; right: -5px">
-                    {{ a.count }}
+        {% if perms.tickets.view_job %}
+            {% for a in agents %}
+                <div class="agent py-2 mr-2 rounded-circle" style="background-color: #6c757d; display: inline-block; width: 45px; height: 45px; text-align: center; position: relative">
+                    <a href="{% url 'tickets:view_jobs' a.user.id %}" style="color: #fff">{{ a.user.firstName.0 }}{{ a.user.lastName.0 }}</a>
+                    <div class="rounded-circle" style="background-color: #f8d7da; color: #7e1c3a; width: 25px; height: 25px; text-align: center; line-height: 25px; position: absolute; bottom: -7px; right: -5px">
+                        {{ a.count }}
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
         <hr>
         <form action="" method="post">
             {% csrf_token %}

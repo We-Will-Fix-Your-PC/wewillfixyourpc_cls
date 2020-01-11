@@ -100,10 +100,49 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col">
+                            {{ form.updater|as_crispy_field }}
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </form>
             </div>
         </div>
+        {% if form.instance %}
+        <div class="row my-3">
+            <div class="col">
+                <h2>Revision history</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Changes</th>
+                        </tr>
+                    </thead>
+                    {% for revision in form.instance.revisions.all %}
+                        <tr>
+                            <th>{{ revision.time }}</th>
+                            <td>{{ revision.get_user.firstName }} {{ revision.get_user.lastName }}</td>
+                            <td>
+                                {% with data=revision.get_data %}
+                                    {% if data.type == "create" %}
+                                        Ticket created
+                                    {% elif data.type == "update" %}
+                                        {{ data.field_name }} changed from:
+                                        <div>{{ data.old_value|safe }}</div>
+                                        to:
+                                        <div>{{ data.new_value|safe }}</div>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        {% endif %}
     </div>
 {% endblock %}
 

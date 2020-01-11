@@ -33,8 +33,8 @@ def view_tickets(request):
                 ticket.status = status
                 ticket.save()
 
-    today_tickets = models.Ticket.objects.filter(to_do_by__gte=timezone.now().date())
-    not_today_tickets = models.Ticket.objects.filter(Q(to_do_by__lt=timezone.now().date()) | Q(to_do_by__isnull=True))
+    today_tickets = models.Ticket.objects.filter(to_do_by__gte=timezone.now().date()).order_by('-id')
+    not_today_tickets = models.Ticket.objects.filter(Q(to_do_by__lt=timezone.now().date()) | Q(to_do_by__isnull=True)).order_by('-id')
     rebuild_tickets = not_today_tickets.filter(location__name="Rebuild")
     awaiting_customer_decision_tickets = not_today_tickets.filter(location__name="Awaiting Customer Decision")
     awaiting_parts_tickets = not_today_tickets.filter(location__name="Awaiting Parts")
@@ -138,6 +138,14 @@ def new_ticket_step2(request, customer_id):
                 num += 1
             print_label.print_ticket_label(form.instance, num=num)
 
+            models.TicketRevision(
+                ticket=form.instance,
+                user=form.cleaned_data['updater'],
+                data=json.dumps({
+                    "type": "create"
+                })
+            ).save()
+
             return redirect("tickets:view_tickets")
     else:
         form = forms.TicketForm(instance=ticket)
@@ -155,6 +163,18 @@ def edit_ticket(request, ticket_id):
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
         if form.is_valid():
+            for e in form.changed_data:
+                if e not in ['updater', 'additional_labels']:
+                    models.TicketRevision(
+                        ticket=form.instance,
+                        user=form.cleaned_data['updater'],
+                        data=json.dumps({
+                            "type": "update",
+                            "field_name": form.fields[e].label,
+                            "old_value": getattr(form.instance, e),
+                            "new_value": form.cleaned_data[e]
+                        })
+                    ).save()
             form.save()
 
             num = form.cleaned_data["additional_labels"]
@@ -299,7 +319,7 @@ def view_job(request, job_id):
 def view_jobs(request, user_id):
     jobs = models.Job.objects.filter(assigned_to=user_id)
     tickets = models.Ticket.objects.filter(assigned_to=user_id)
-    user = models.Job._get_user(user_id)
+    user = models.get_user(user_id)
     return render(request, "tickets/jobs.html", {
         "jobs": jobs,
         "tickets": tickets,

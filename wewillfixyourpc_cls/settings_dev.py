@@ -168,12 +168,12 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-# PRINTER_DRIVER = 'tickets.print_label.DummyDriver'
-# PRINTER_DRIVER_OPS = {}
+PRINTER_DRIVER = 'tickets.print_label.DummyDriver'
+PRINTER_DRIVER_OPS = {}
 
-PRINTER_DRIVER = 'tickets.print_label.BrotherDriver'
-PRINTER_DRIVER_OPS = {
-    "printer": f"tcp://10.5.0.1:9100",
-    "model": "QL-720NW",
-    "label": "62"
-}
+# PRINTER_DRIVER = 'tickets.print_label.BrotherDriver'
+# PRINTER_DRIVER_OPS = {
+#     "printer": f"tcp://10.5.0.1:9100",
+#     "model": "QL-720NW",
+#     "label": "62"
+# }

@@ -6,6 +6,7 @@ from . import widgets
 
 class TicketForm(forms.ModelForm):
     additional_labels = forms.IntegerField(min_value=0, initial=0)
+    updater = forms.UUIDField(widget=widgets.AgentWidget())
 
     class Meta:
         model = models.Ticket
@@ -16,6 +17,7 @@ class TicketForm(forms.ModelForm):
         widgets = {
             'booked_by': widgets.AgentWidget(),
             'assigned_to': widgets.AgentWidget(),
+            'updater': widgets.AgentWidget(),
             'to_do_by': forms.DateInput(),
             'whats_it_doing': RichTextUploadingFormField(required=True),
             'work_done': RichTextUploadingFormField(required=False)
