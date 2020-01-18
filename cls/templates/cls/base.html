@@ -36,6 +36,12 @@
                         <a class="nav-link" href="{{ tickets_url }}">Tickets</a>
                     </li>
                 {% endif %}
+                {% if perms.sale.view_item %}
+                    {% url 'sale:view_items' as items_url %}
+                    <li class="nav-item{% if request.get_full_path == items_url %} active{% endif %}">
+                        <a class="nav-link" href="{{ items_url }}">For sale</a>
+                    </li>
+                {% endif %}
             </ul>
             {% if perms.customers.view_customer and perms.tickets.view_ticket %}
                 <form class="form-inline my-2 my-lg-0" method="get" action="{% url 'cls:search' %}">
@@ -56,6 +62,14 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+<script type="application/javascript">
+    $('#update_modal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const ticket_id = button.data('id');
+        const modal = $(this);
+        modal.find('input[name="ticket_id"]').val(ticket_id)
+    })
+</script>
 {% block scripts %}
 {% endblock %}
 </body>

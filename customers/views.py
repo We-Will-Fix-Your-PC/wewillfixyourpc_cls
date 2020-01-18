@@ -87,6 +87,7 @@ def edit_customer(request, customer_id):
     if request.method == 'POST':
         form = forms.CustomerForm(request.POST, prefix="primary")
         phone_numbers = forms.CustomerPhoneFormSet(request.POST)
+        phone_numbers.clean()
         if form.is_valid() and phone_numbers.is_valid():
             django_keycloak_auth.users.update_user(customer_id, force_update=True, **transform_customer_form(form, phone_numbers))
             models.CustomerCache.objects.filter(cust_id=customer_id).delete()
@@ -136,6 +137,7 @@ def new_customer(request):
     if request.method == 'POST':
         form = forms.CustomerForm(request.POST, prefix="primary")
         phone_numbers = forms.CustomerPhoneFormSet(request.POST)
+        phone_numbers.clean()
         if form.is_valid() and phone_numbers.is_valid():
             user = django_keycloak_auth.users.get_or_create_user(**transform_customer_form(form, phone_numbers))
             models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
@@ -172,7 +174,6 @@ def edit_credential(request, credential_id):
 
     if request.method == 'POST':
         form = forms.CredentialForm(request.POST, instance=credential)
-
         if form.is_valid():
             form.save()
             return redirect("customers:view_customer", credential.customer)
@@ -192,7 +193,6 @@ def new_credential(request, customer_id):
 
     if request.method == 'POST':
         form = forms.CredentialForm(request.POST, instance=credential)
-
         if form.is_valid():
             form.save()
             return redirect("customers:view_customer", credential.customer)

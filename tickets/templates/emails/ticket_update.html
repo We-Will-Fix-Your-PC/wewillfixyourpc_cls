@@ -1,10 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<style type="text/css" style="font-weight: 300">
+  @import url(https://fonts.googleapis.com/css?family=Lato:400,700);
+</style>
+<div style="background-image: url('http://account.cardifftec.uk/auth/resources/ille7/login/wwfypc/img/retro-apple-tile.png'); background-position: 50% 50%; font-family: Lato, 'Helvetica Neue', helvetica, sans-serif;">
+    <div style="padding: 40px;">
+    <table style="margin: 0 auto; border-radius: 5px; background: #fff; max-width: 600px; width:100%; border: 1px solid #c7d0d4; border-spacing: 0;">
+        <tr>
+            <td style="border-bottom: 1px solid #dee7eb; text-align: center;">
+                <img src="http://account.cardifftec.uk/auth/resources/ille7/login/wwfypc/img/wwfypc-logo-wd.png" height="150px" alt="We Will Fix Your PC" />
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px;">
+                <h1>An update on your repair</h1>
+                <h2>Ticket #{{ ticket.id }}</h2>
+                <b>Equipment:</b> {{ ticket.equipment.name }}<br/>
+                <hr/>
+                {{ content|safe }}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px; text-align: center">
+                39 Lamboure Crescent<br/>
+                Llanishen<br/>
+                Cardiff<br/>
+                CF14 5GG<br/>
+                Tel: <a href="tel:+442920766039">(029) 2076 6039</a> or
+                email: <a href="mailto:neil@wewillfixyourpc.co.uk">neil@wewillfixyourpc.co.uk</a>
+            </td>
+        </tr>
+    </table>
+    </div>
+</div>

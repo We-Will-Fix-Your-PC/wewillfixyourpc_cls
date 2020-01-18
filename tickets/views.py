@@ -1,15 +1,18 @@
 import json
-import socket
 import urllib.parse
 
 import django_keycloak_auth.users
 import django_keycloak_auth.clients
+import phonenumbers
+import requests
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseNotAllowed
+from django.http import HttpResponse, HttpResponseNotAllowed, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 
 from . import forms, models, print_label
 
@@ -128,6 +131,7 @@ def new_ticket_step2(request, customer_id):
     ticket = models.Ticket(customer=customer_id)
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
+        form.clead()
         if form.is_valid():
             form.save()
 
@@ -162,6 +166,7 @@ def edit_ticket(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
+        form.clean()
         if form.is_valid():
             for e in form.changed_data:
                 if e not in ['updater', 'additional_labels']:
@@ -212,6 +217,81 @@ def print_ticket_receipt(request, ticket_id):
 
 
 @login_required
+@permission_required('tickets.change_ticket', raise_exception=True)
+def send_ticket_update(request):
+    if request.method == "POST":
+        if not request.POST.get("ticket_id"):
+            raise Http404()
+        ticket = get_object_or_404(models.Ticket, id=request.POST.get("ticket_id"))
+        update_type = request.POST.get("update_type")
+        if update_type == "ready":
+            context = {
+                "content": "Your repair is complete and your device is ready to collect at your earliest convenience",
+                "ticket": ticket
+            }
+            html_email = render_to_string("emails/ticket_update.html", context)
+            plain_email = render_to_string("emails/ticket_update_plain.html", context)
+            text_message = f"Your We Will Fix Your PC repair (ticket #{ticket.id}) of a {ticket.equipment.name} is " \
+                f"complete and your device is ready to collect at your earliest convenience"
+        elif update_type == "custom":
+            context = {
+                "content": request.POST.get("update_text"),
+                "ticket": ticket
+            }
+            html_email = render_to_string("emails/ticket_update.html", context)
+            plain_email = render_to_string("emails/ticket_update_plain.html", context)
+            text_message = f"An update on your We Will Fix Your PC (ticket #{ticket.id}) repair of a " \
+                f"{ticket.equipment.name} :\n {request.POST.get('update_text')}"
+        else:
+            return HttpResponseBadRequest()
+
+        customer = ticket.get_customer()
+
+        if customer.get("email"):
+            mail = EmailMultiAlternatives(
+                'An update on your We Will Fix Your PC repair', plain_email,
+                'noreply@noreply.wewillfixyourpc.co.uk', [customer.get("email")]
+            )
+            mail.attach_alternative(html_email, 'text/html')
+            mail.send()
+
+        mobile_numbers = []
+        other_numbers = []
+        for n in customer.get("attributes", {}).get("phone", []):
+            try:
+                n = phonenumbers.parse(n, settings.PHONENUMBER_DEFAULT_REGION)
+            except phonenumbers.phonenumberutil.NumberParseException:
+                continue
+            if phonenumbers.is_valid_number(n):
+                if phonenumbers.phonenumberutil.number_type(n) == phonenumbers.PhoneNumberType.MOBILE:
+                    mobile_numbers.append(n)
+                else:
+                    other_numbers.append(n)
+
+        if len(mobile_numbers):
+            for n in mobile_numbers:
+                r = requests.post("https://rest.nexmo.com/sms/json", data={
+                    "from": "We Will Fix",
+                    "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
+                    "text": text_message,
+                    "api_key": settings.NEXMO_KEY,
+                    "api_secret": settings.NEXMO_SECRET
+                })
+                print(r.text)
+        else:
+            for n in other_numbers:
+                requests.post("https://rest.nexmo.com/sms/json", data={
+                    "from": "We Will Fix",
+                    "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
+                    "text": text_message,
+                    "api_key": settings.NEXMO_KEY,
+                    "api_secret": settings.NEXMO_SECRET
+                })
+
+    return redirect(request.META.get("HTTP_REFERER"))
+
+
+@login_required
 def view_ticket(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
     if not (request.user.has_perm("tickets.view_tickets") or str(ticket.customer) == request.user.username):
@@ -245,7 +325,10 @@ def ticket_settings(request):
         statuses = forms.StatusFormSet(request.POST, prefix='status')
         locations = forms.LocationFormSet(request.POST, prefix='location')
         os_types = forms.OSTypeFormSet(request.POST, prefix='os_type')
-
+        equipment_types.clean()
+        statuses.clean()
+        locations.clean()
+        os_types.clean()
         if equipment_types.is_valid() and statuses.is_valid() and locations.is_valid() and os_types.is_valid():
             equipment_types.save()
             statuses.save()

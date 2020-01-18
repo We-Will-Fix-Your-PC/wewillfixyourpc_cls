@@ -55,7 +55,6 @@ def index(request):
                 return redirect('checkin:details')
 
         form = forms.NameForm(request.POST)
-
         if form.is_valid():
             request.session["checkin_first_name"] = form.cleaned_data["first_name"]
             request.session["checkin_last_name"] = form.cleaned_data["last_name"]
@@ -110,7 +109,6 @@ def details(request):
             return redirect('checkin:done')
 
         form = forms.DetailsForm(request.POST)
-
         if form.is_valid():
             user = next(
                 filter(
@@ -143,7 +141,6 @@ def details(request):
 def setup(request):
     if request.method == "POST":
         form = forms.SetupForm(request.POST)
-
         if form.is_valid():
             totp = pyotp.TOTP(settings.OTP_SECRET)
             if totp.verify(form.cleaned_data['code']):

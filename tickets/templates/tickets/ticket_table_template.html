@@ -45,6 +45,10 @@
                             <i class="material-icons">receipt</i>
                         </a>
                         {% if perms.tickets.change_ticket %}
+                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal"
+                                    data-target="#update_modal" data-id="{{ ticket.id }}">
+                                <i class="material-icons">send</i>
+                            </button>
                             <a href="{% url 'tickets:edit_ticket' ticket.id %}" class="btn btn-success btn-sm" title="Edit">
                                 <i class="material-icons">edit</i>
                             </a>
