@@ -108,6 +108,9 @@ spec:
             - secretRef:
                 name: firebase
               prefix: "FIREBASE_"
+            - secretRef:
+                name: nexmo
+              prefix: "NEXMO_"
       containers:
         - name: gunicorn
           image: theenbyperor/wwfypc-cls:(version)
@@ -137,6 +140,9 @@ spec:
             - secretRef:
                 name: keycloak
               prefix: "KEYCLOAK_"
+            - secretRef:
+                name: nexmo
+              prefix: "NEXMO_"
 ---
 ---
 apiVersion: v1

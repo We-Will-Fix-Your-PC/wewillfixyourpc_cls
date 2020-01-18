@@ -18,14 +18,20 @@ def view_items(request):
 def new_item(request):
     if request.method == 'POST':
         form = forms.ItemForm(request.POST)
-        if form.is_valid():
+        images = forms.ItemImageFormSet(request.POST, files=request.FILES, prefix='images')
+        images.clean()
+        if form.is_valid() and images.is_valid():
             form.save()
+            images.instance = form.instance
+            images.save()
             return redirect("sale:view_items")
     else:
         form = forms.ItemForm()
+        images = forms.ItemImageFormSet(prefix='images')
 
     return render(request, "sale/item_form.html", {
         "form": form,
+        "images": images,
         "title": "New item"
     })
 
