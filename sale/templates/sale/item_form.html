@@ -18,6 +18,9 @@
                             {{ form.name|as_crispy_field }}
                         </div>
                         <div class="col">
+                            {{ form.condition|as_crispy_field }}
+                        </div>
+                        <div class="col">
                             {{ form.price|as_crispy_field }}
                         </div>
                     </div>
@@ -59,6 +62,14 @@
                                 {{ form.description.label_tag }}
                                 <br>
                                 {{ form.description }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.changes_made.errors }}
+                                {{ form.changes_made.label_tag }}
+                                <br>
+                                {{ form.changes_made }}
                             </div>
                         </div>
                     </div>

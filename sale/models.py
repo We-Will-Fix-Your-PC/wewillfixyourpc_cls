@@ -15,8 +15,10 @@ class ItemCategory(models.Model):
 class Item(models.Model):
     category = models.ForeignKey(ItemCategory, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=False)
+    condition = models.CharField(max_length=255, blank=False)
     price = models.DecimalField(decimal_places=2, max_digits=10, blank=False)
     description = RichTextUploadingField(blank=True, null=True)
+    changes_made = RichTextUploadingField(blank=True, null=True)
 
     def __str__(self):
         return self.name

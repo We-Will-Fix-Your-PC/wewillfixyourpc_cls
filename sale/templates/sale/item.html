@@ -11,6 +11,9 @@
                 <b>Name: </b> {{ item.name }}
             </div>
             <div class="col">
+                <b>Condition: </b> {{ item.condition }}
+            </div>
+            <div class="col">
                 <b>Price: </b> {{ item.price }}
             </div>
         </div>
@@ -34,7 +37,11 @@
         <div class="row">
             <div class="col">
                 <h3>Description</h3>
-                {{ job.description }}
+                {{ item.description }}
+            </div>
+            <div class="col">
+                <h3>Changes made</h3>
+                {{ item.changes_made }}
             </div>
         </div>
 {% endblock %}
