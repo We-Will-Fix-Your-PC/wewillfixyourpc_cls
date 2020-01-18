@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'customers',
     'checkin',
     'tickets',
+    'sale',
     'crispy_forms',
     'ckeditor',
     'ckeditor_uploader',
@@ -141,6 +142,8 @@ USE_TZ = True
 
 EXTERNAL_URL_BASE = "https://wewillfixyourpc-cls.eu.ngrok.io"
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 PHONENUMBER_DEFAULT_REGION = 'GB'
 
@@ -148,6 +151,8 @@ with open(os.path.join(BASE_DIR, "secrets/keycloak.json")) as f:
     keycloak_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/google.json")) as f:
     google_conf = json.load(f)
+with open(os.path.join(BASE_DIR, "secrets/nexmo.json")) as f:
+    nexmo_conf = json.load(f)
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -158,6 +163,9 @@ OIDC_CLIENT_SECRET = keycloak_conf["client_secret"]
 OIDC_SCOPES = keycloak_conf["scopes"]
 
 FIREBASE_URL_API_KEY = google_conf["short_links"]
+
+NEXMO_KEY = nexmo_conf["key"]
+NEXMO_SECRET = nexmo_conf["secret"]
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {

@@ -15,6 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,5 +26,10 @@ urlpatterns = [
     path('customers/', include('customers.urls', namespace='customers')),
     path('checkin/', include('checkin.urls', namespace='checkin')),
     path('tickets/', include('tickets.urls', namespace='tickets')),
+    path('sale/', include('sale.urls', namespace='sale')),
     path("auth/", include("django_keycloak_auth.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static("static/", document_root=settings.STATIC_ROOT)
+    urlpatterns += static("media/", document_root=settings.MEDIA_ROOT)

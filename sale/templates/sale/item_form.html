@@ -1,0 +1,121 @@
+{% extends "cls/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>{{ title }}</h1>
+        <div class="row">
+            <div class="col">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="row">
+                        <div class="col">
+                            {{ form.category|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.name|as_crispy_field }}
+                        </div>
+                        <div class="col">
+                            {{ form.price|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <h4>Images</h4>
+                            {{ images.management_form }}
+                            {% for error in images.errors %}
+                                <strong>{{ error|escape }}</strong>
+                            {% endfor %}
+                            <div class="d-flex align-items-start my-3">
+                            {% for image in images %}
+                                <div class="card image_row mx-1 form-row" style="width: 18rem;">
+                                    {% if image.image.value %}
+                                        <img src="{{ image.image.value.url }}" class="card-img-top" alt="">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <input type="hidden" name="{{ image.id.html_name }}"
+                                               value="{% if image.id.value %}{{ image.id.value }}{% endif %}">
+                                        <input type="checkbox" class="delete" style="display: none" name="{{ image.DELETE.html_name }}">
+                                        {{ image.image }}
+                                        <br>
+                                        <button class="btn btn-danger remove_image mt-3" type="button">Delete</button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col">
+                                    <button class="btn btn-success" id="add_image" type="button">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.description.errors }}
+                                {{ form.description.label_tag }}
+                                <br>
+                                {{ form.description }}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ form.media }}
+
+    <script type="application/javascript">
+        function cloneMore(selector, prefix) {
+            const newElement = $(selector).clone(true);
+            const $total = $('#id_' + prefix + '-TOTAL_FORMS');
+            let total = $total.val();
+            newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function () {
+                const name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
+                const id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+            });
+            newElement.find('label').each(function () {
+                let forValue = $(this).attr('for');
+                if (forValue) {
+                    forValue = forValue.replace('-' + (total - 1) + '-', '-' + total + '-');
+                    $(this).attr({'for': forValue});
+                }
+            });
+            total++;
+            $total.val(total);
+            $(selector).after(newElement);
+            const conditionRow = $('.form-row:not(:last)');
+            conditionRow.find('.btn.add-form-row')
+                .removeClass('btn-success').addClass('btn-danger')
+                .removeClass('add-form-row').addClass('remove-form-row')
+                .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
+            return false;
+        }
+
+        function deleteForm(btn) {
+            const $row = btn.closest('.form-row');
+            $row.css("display", "none");
+            $row.find("input.delete").attr("checked", true);
+            return false;
+        }
+
+        $(document).on('click', '#add_image', function (e) {
+            e.preventDefault();
+            cloneMore('.image_row:last', 'images');
+            return false;
+        });
+        $(document).on('click', '.remove_image', function (e) {
+            e.preventDefault();
+            deleteForm($(this));
+            return false;
+        });
+    </script>
+{% endblock %}

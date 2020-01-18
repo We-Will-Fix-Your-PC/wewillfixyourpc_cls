@@ -1,0 +1,49 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Items for sale</h1>
+        {% if perms.sale.add_item %}
+            <a class="btn btn-success" href="{% url 'sale:new_item' %}">New item</a>
+        {% endif %}
+        <a class="btn btn-secondary" href="{% url 'sale:settings' %}">Settings</a>
+        <hr>
+        <table class="table mt-3">
+            <thead>
+            <tr>
+                <th>Category</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.category.name }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>
+                        <div class="btn-group">
+                            {% if perms.sale.change_item %}
+                                <a href="{% url 'sale:edit_item' item.id %}" class="btn btn-success btn-sm" title="Edit">
+                                    <i class="material-icons">edit</i>
+                                </a>
+                            {% elif perms.sale.view_item %}
+                                <a href="{% url 'sale:view_item' item.id %}" class="btn btn-primary btn-sm" title="View">
+                                    <i class="material-icons">view</i>
+                                </a>
+                            {% endif %}
+                            {% if perms.sale.delete_item %}
+                                <a href="{% url 'sale:delete_item' item.id %}" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="material-icons">delete</i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

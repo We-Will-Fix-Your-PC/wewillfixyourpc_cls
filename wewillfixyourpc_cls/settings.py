@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'customers',
     'checkin',
     'tickets',
+    'sale',
     'crispy_forms',
     'ckeditor',
     'ckeditor_uploader',
@@ -183,6 +184,9 @@ CKEDITOR_CONFIGS = {
 }
 
 FIREBASE_URL_API_KEY = os.getenv("FIREBASE_URL_KEY")
+
+NEXMO_KEY = os.getenv("NEXMO_KEY")
+NEXMO_SECRET = os.getenv("NEXMO_SECRET")
 
 PRINTER_DRIVER = 'tickets.print_label.BrotherDriver'
 PRINTER_DRIVER_OPS = {

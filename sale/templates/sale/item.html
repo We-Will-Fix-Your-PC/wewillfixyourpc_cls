@@ -1,0 +1,40 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>View item</h1>
+        <div class="row">
+            <div class="col">
+                <b>Category: </b> {{ item.category.name }}
+            </div>
+            <div class="col">
+                <b>Name: </b> {{ item.name }}
+            </div>
+            <div class="col">
+                <b>Price: </b> {{ item.price }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>Images</h3>
+                <div class="d-flex align-items-start">
+                {% for image in item.images.all %}
+                    <div class="card image_row mx-1 form-row" style="width: 18rem;">
+                        {% if image.image %}
+                            <img src="{{ image.image.url }}" class="card-img-top" alt="">
+                        {% endif %}
+                        <div class="card-body">
+                            <a href="{{ image.image.url }}">{{ image.image }}</a>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>Description</h3>
+                {{ job.description }}
+            </div>
+        </div>
+{% endblock %}

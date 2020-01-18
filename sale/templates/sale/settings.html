@@ -1,0 +1,89 @@
+{% extends "cls/base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Item settings</h1>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    <h4>Categories</h4>
+                    {{ categories.management_form }}
+                    {% for error in categories.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                    {% for category in categories %}
+                        <div class="input-group mb-3 category_row form-row">
+                            <input type="hidden" name="{{ category.id.html_name }}"
+                                   value="{% if category.id.value %}{{ category.id.value }}{% endif %}">
+                            <input type="checkbox" class="delete" style="display: none" name="{{ category.DELETE.html_name }}">
+                            <input class="form-control" type="text"
+                                   name="{{ category.name.html_name }}"
+                                   value="{% if category.name.value %}{{ category.name.value }}{% endif %}"
+                            >
+                            <div class="input-group-append">
+                                <button class="btn btn-danger remove_category" type="button">-</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="row mb-4">
+                        <div class="col">
+                            <button class="btn btn-success" id="add_category" type="button">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        function cloneMore(selector, prefix) {
+            const newElement = $(selector).clone(true);
+            const $total = $('#id_' + prefix + '-TOTAL_FORMS');
+            let total = $total.val();
+            newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function () {
+                const name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
+                const id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+            });
+            newElement.find('label').each(function () {
+                let forValue = $(this).attr('for');
+                if (forValue) {
+                    forValue = forValue.replace('-' + (total - 1) + '-', '-' + total + '-');
+                    $(this).attr({'for': forValue});
+                }
+            });
+            total++;
+            $total.val(total);
+            $(selector).after(newElement);
+            const conditionRow = $('.form-row:not(:last)');
+            conditionRow.find('.btn.add-form-row')
+                .removeClass('btn-success').addClass('btn-danger')
+                .removeClass('add-form-row').addClass('remove-form-row')
+                .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
+            return false;
+        }
+
+        function deleteForm(btn) {
+            const $row = btn.closest('.form-row');
+            $row.css("display", "none");
+            $row.find("input.delete").attr("checked", true);
+            return false;
+        }
+
+        $(document).on('click', '#add_category', function (e) {
+            e.preventDefault();
+            cloneMore('.category_type_row:last', 'category');
+            return false;
+        });
+        $(document).on('click', '.remove_category', function (e) {
+            e.preventDefault();
+            deleteForm($(this));
+            return false;
+        });
+    </script>
+{% endblock %}
