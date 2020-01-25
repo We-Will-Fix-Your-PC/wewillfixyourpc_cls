@@ -17,6 +17,10 @@
                         <th>Email</th>
                         <td>{% if customer.email %}{{ customer.email }}{% else %}N/A{% endif %}</td>
                     </tr>
+                    <tr>
+                        <th>Usernmae</th>
+                        <td>{{ customer.username }}</td>
+                    </tr>
                     {% for phone in customer.attributes.phone %}
                         <tr>
                             <th>Phone</th>
