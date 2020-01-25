@@ -17,14 +17,12 @@ class Item(models.Model):
     CONDITIONS = (
         ('new', 'New'),
         ('refurbished', 'Refurbished'),
-        ('used', 'Used'),
-        ('used_fair', 'Used - Fair'),
-        ('used_good', 'Used - Good'),
-        ('used_like_new', 'Used - Like ew')
+        ('used', 'Used')
     )
 
     category = models.ForeignKey(ItemCategory, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=False)
+    mpn = models.CharField(max_length=255, blank=False, verbose_name='Manufacturer part number')
     brand = models.CharField(max_length=255, blank=False)
     condition = models.CharField(max_length=30, blank=False, choices=CONDITIONS)
     price = models.DecimalField(decimal_places=2, max_digits=10, blank=False)
