@@ -10,6 +10,7 @@
             <g:description>{{ item.description }}</g:description>
             <g:link>https://wewillfixyourpc.co.uk</g:link>
             <g:image_link>{{ item.images.first.image.url }}</g:image_link>
+            <g:additional_image_link>{% for image in item.images.all|slice:"1:" %}{{ image.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}</g:additional_image_link>
             <g:brand>{{ item.brand }}</g:brand>
             <g:condition>{{ item.condition }}</g:condition>
             <g:availability>{% if item.available %}in stock{% else %}out of stock{% endif %}</g:availability>
