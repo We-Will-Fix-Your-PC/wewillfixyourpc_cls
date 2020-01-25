@@ -41,12 +41,12 @@ def view_tickets(request):
         Q(to_do_by__lt=timezone.now().date()) | Q(to_do_by__isnull=True)).order_by('-id')
     rebuild_tickets = not_today_tickets.filter(location__name="Rebuild")
     awaiting_customer_decision_tickets = not_today_tickets.filter(status__name="Awaiting customer decision")
-    awaiting_parts_tickets = not_today_tickets.filter(status__name="Awaiting Parts")
+    awaiting_parts_tickets = not_today_tickets.filter(status__name="Awaiting parts")
     looking_for_parts_tickets = not_today_tickets.filter(status__name="Looking for parts")
     completed_tickets = not_today_tickets.filter(status__name="Completed")
     normal_tickets = not_today_tickets.filter(
-        ~Q(location__name="Rebuild"), ~Q(status__name="Awaiting Customer Decision"),
-        ~Q(status__name="Awaiting Parts"), ~Q(status__name="Looking for Parts"),
+        ~Q(location__name="Rebuild"), ~Q(status__name="Awaiting customer decision"),
+        ~Q(status__name="Awaiting parts"), ~Q(status__name="Looking for parts"),
         ~Q(status__name="Completed"),
     )
 
