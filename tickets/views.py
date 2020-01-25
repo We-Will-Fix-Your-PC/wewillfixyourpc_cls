@@ -40,9 +40,9 @@ def view_tickets(request):
     not_today_tickets = models.Ticket.objects.filter(
         Q(to_do_by__lt=timezone.now().date()) | Q(to_do_by__isnull=True)).order_by('-id')
     rebuild_tickets = not_today_tickets.filter(location__name="Rebuild")
-    awaiting_customer_decision_tickets = not_today_tickets.filter(status__name="Awaiting Customer Decision")
+    awaiting_customer_decision_tickets = not_today_tickets.filter(status__name="Awaiting customer decision")
     awaiting_parts_tickets = not_today_tickets.filter(status__name="Awaiting Parts")
-    looking_for_parts_tickets = not_today_tickets.filter(status__name="Looking for Parts")
+    looking_for_parts_tickets = not_today_tickets.filter(status__name="Looking for parts")
     completed_tickets = not_today_tickets.filter(status__name="Completed")
     normal_tickets = not_today_tickets.filter(
         ~Q(location__name="Rebuild"), ~Q(status__name="Awaiting Customer Decision"),
