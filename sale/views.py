@@ -13,6 +13,13 @@ def view_items(request):
     })
 
 
+def item_feed(request):
+    items = models.Item.objects.all()
+    return render(request, "sale/catalogue.html", {
+        "items": items
+    })
+
+
 @login_required
 @permission_required('sale.add_item', raise_exception=True)
 def new_item(request):

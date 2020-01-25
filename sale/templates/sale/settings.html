@@ -20,6 +20,12 @@
                             <input class="form-control" type="text"
                                    name="{{ category.name.html_name }}"
                                    value="{% if category.name.value %}{{ category.name.value }}{% endif %}"
+                                   placeholder="Name"
+                            >
+                            <input class="form-control" type="text"
+                                   name="{{ category.google_category.html_name }}"
+                                   value="{% if category.google_category.value %}{{ category.google_category.value }}{% endif %}"
+                                   placeholder="Google product category"
                             >
                             <div class="input-group-append">
                                 <button class="btn btn-danger remove_category" type="button">-</button>

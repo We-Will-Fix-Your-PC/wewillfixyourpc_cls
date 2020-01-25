@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+    <channel>
+        <title>We Will Fix Your PC</title>
+        <link>https://wewillfixyourpc.co.uk</link>
+        {% for item in items %}
+        <item>
+            <g:id>CLS_{{ item.id }}</g:id>
+            <g:title>{{ item.name }}</g:title>
+            <g:description>{{ item.description }}</g:description>
+            <g:link>https://wewillfixyourpc.co.uk</g:link>
+            <g:image_link>https://{{ request.get_host }}{{ item.images.first.image.url }}</g:image_link>
+            <g:brand>{{ item.brand }}</g:brand>
+            <g:condition>{{ item.condition }}</g:condition>
+            <g:availability>{% if item.available %}in stock{% else %}out of stock{% endif %}</g:availability>
+            <g:price>{{ item.price }} GBP</g:price>
+            <g:google_product_category>{{ item.category.google_category }}</g:google_product_category>
+        </item>
+        {% endfor %}
+    </channel>
+</rss>

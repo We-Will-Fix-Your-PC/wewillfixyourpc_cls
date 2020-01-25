@@ -37,6 +37,7 @@ data:
   EXTERNAL_URL: "https://2.cardifftec.uk"
   SENTRY_ENVIRONMENT: "prod"
   EMAIL_HOST: "mail.misell.cymru"
+  UPDATES_EMAIL: "matt@wewillfixyourpc.co.uk"
   KEYCLOAK_SERVER_URL: "https://account.cardifftec.uk/"
   KEYCLOAK_REALM: wwfypc
   KEYCLOAK_SCOPES: "openid email profile"
