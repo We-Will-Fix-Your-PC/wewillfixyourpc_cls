@@ -7,7 +7,7 @@ class ItemForm(forms.ModelForm):
     class Meta:
         model = models.Item
         fields = [
-            'category', 'name', 'brand', 'price', 'description', 'condition', 'changes_made'
+            'category', 'name', 'brand', 'price', 'description', 'condition', 'changes_made', 'available'
         ]
         widgets = {
             'changes_made': RichTextUploadingFormField(required=False)

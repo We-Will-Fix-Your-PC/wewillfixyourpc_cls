@@ -28,6 +28,9 @@
                         <div class="col">
                             {{ form.price|as_crispy_field }}
                         </div>
+                        <div class="col">
+                            {{ form.available|as_crispy_field }}
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col">
@@ -62,12 +65,7 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <div class="form-group">
-                                {{ form.description.errors }}
-                                {{ form.description.label_tag }}
-                                <br>
-                                {{ form.description }}
-                            </div>
+                            {{ form.description|as_crispy_field }}
                         </div>
                         <div class="col">
                             <div class="form-group">
