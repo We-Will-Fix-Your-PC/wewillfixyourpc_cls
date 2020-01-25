@@ -1,7 +1,7 @@
 {% extends "cls/base.html" %}
 
 {% block content %}
-    <div class="container mt-4">
+    <div class="container-fluid my-4">
         <h1>Items for sale</h1>
         {% if perms.sale.add_item %}
             <a class="btn btn-success" href="{% url 'sale:new_item' %}">New item</a>

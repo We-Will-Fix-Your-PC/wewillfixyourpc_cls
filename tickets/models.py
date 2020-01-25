@@ -55,7 +55,7 @@ class Ticket(models.Model):
     equipment = models.ForeignKey(EquipmentType, on_delete=models.SET_NULL, null=True, blank=False)
     status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, blank=False)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=False)
-    booked_by = models.UUIDField()
+    booked_by = models.UUIDField(null=True)
     assigned_to = models.UUIDField(blank=True, null=True)
     current_os = \
         models.ForeignKey(OSType, on_delete=models.SET_NULL, null=True, blank=True, related_name="tickets_current")

@@ -1,19 +1,19 @@
 import json
 import urllib.parse
 
-import django_keycloak_auth.users
-import django_keycloak_auth.clients
 import phonenumbers
 import requests
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseNotAllowed, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
 
+import django_keycloak_auth.clients
+import django_keycloak_auth.users
 from . import forms, models, print_label
 
 
@@ -37,37 +37,42 @@ def view_tickets(request):
                 ticket.save()
 
     today_tickets = models.Ticket.objects.filter(to_do_by__gte=timezone.now().date()).order_by('-id')
-    not_today_tickets = models.Ticket.objects.filter(Q(to_do_by__lt=timezone.now().date()) | Q(to_do_by__isnull=True)).order_by('-id')
+    not_today_tickets = models.Ticket.objects.filter(
+        Q(to_do_by__lt=timezone.now().date()) | Q(to_do_by__isnull=True)).order_by('-id')
     rebuild_tickets = not_today_tickets.filter(location__name="Rebuild")
-    awaiting_customer_decision_tickets = not_today_tickets.filter(location__name="Awaiting Customer Decision")
-    awaiting_parts_tickets = not_today_tickets.filter(location__name="Awaiting Parts")
-    looking_for_parts_tickets = not_today_tickets.filter(location__name="Looking for Parts")
-    completed_tickets = not_today_tickets.filter(location__name="Completed")
+    awaiting_customer_decision_tickets = not_today_tickets.filter(status__name="Awaiting Customer Decision")
+    awaiting_parts_tickets = not_today_tickets.filter(status__name="Awaiting Parts")
+    looking_for_parts_tickets = not_today_tickets.filter(status__name="Looking for Parts")
+    completed_tickets = not_today_tickets.filter(status__name="Completed")
     normal_tickets = not_today_tickets.filter(
-        ~Q(location__name="Rebuild"), ~Q(location__name="Awaiting Customer Decision"),
-        ~Q(location__name="Awaiting Parts"), ~Q(location__name="Looking for Parts"),
-        ~Q(location__name="Completed"),
+        ~Q(location__name="Rebuild"), ~Q(status__name="Awaiting Customer Decision"),
+        ~Q(status__name="Awaiting Parts"), ~Q(status__name="Looking for Parts"),
+        ~Q(status__name="Completed"),
     )
 
     client = django_keycloak_auth.clients.get_keycloak_admin_client()
     client_id = next(
-            filter(
-                lambda c: c.get("clientId") == settings.OIDC_CLIENT_ID,
-                client.clients.all()
-            )
+        filter(
+            lambda c: c.get("clientId") == settings.OIDC_CLIENT_ID,
+            client.clients.all()
+        )
     )
 
     agents = list(
         map(
             lambda u: {
                 "user": u,
-                "count": models.Ticket.objects.filter(Q(assigned_to=u.get('id')), ~Q(location__name="Completed")).count() +
+                "count": models.Ticket.objects.filter(Q(assigned_to=u.get('id')),
+                                                      ~Q(location__name="Completed")).count() +
                          models.Job.objects.filter(assigned_to=u.get('id'), completed=False).count()
             },
-            client._client.get(
-                url=client._client.get_full_url(
-                    'auth/admin/realms/{realm}/clients/{id}/roles/{role_name}/users'
-                        .format(realm=client._name, id=client_id.get("id"), role_name="agent")
+            filter(
+                lambda u: u.get('enabled', False),
+                client._client.get(
+                    url=client._client.get_full_url(
+                        'auth/admin/realms/{realm}/clients/{id}/roles/{role_name}/users'
+                            .format(realm=client._name, id=client_id.get("id"), role_name="agent")
+                    )
                 )
             )
         )
@@ -166,7 +171,6 @@ def edit_ticket(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
-        form.clean()
         if form.is_valid():
             for e in form.changed_data:
                 if e not in ['updater', 'additional_labels']:

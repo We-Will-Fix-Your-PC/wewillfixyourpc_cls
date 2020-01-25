@@ -13,16 +13,19 @@ import urllib.parse
 @login_required
 @permission_required('customers.view_customer', raise_exception=True)
 def view_customers(request):
-    customers = list(
-        map(
-            lambda u: u.user,
-            filter(
-                lambda u: next(filter(
-                    lambda r: r.get('name') == 'customer', u.role_mappings.realm.get()
-                ), False),
-                django_keycloak_auth.users.get_users()
+    customers = sorted(
+        list(
+            map(
+                lambda u: u.user,
+                filter(
+                    lambda u: next(filter(
+                        lambda r: r.get('name') == 'customer', u.role_mappings.realm.get()
+                    ), False),
+                    django_keycloak_auth.users.get_users()
+                )
             )
-        )
+        ),
+        key=lambda c: f"{c.get('firstName')} {c.get('lastName')}"
     )
     return render(request, "customer/customers.html", {
         "customers": customers

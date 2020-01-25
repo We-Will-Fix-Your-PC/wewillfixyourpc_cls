@@ -1,7 +1,7 @@
 {% extends "cls/base.html" %}
 
 {% block content %}
-    <div class="container mt-4">
+    <div class="container-fluid my-4">
         <h1>Tickets</h1>
         {% if perms.tickets.add_ticket %}
             <a class="btn btn-success" href="{% url 'tickets:new' %}">New ticket</a>

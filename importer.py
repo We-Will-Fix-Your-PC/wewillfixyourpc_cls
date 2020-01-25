@@ -39,7 +39,7 @@ agents = admin_client._client.get(
 )
 
 equipment = ["Laptop", "Desktop", "Tablet", "Phone", "Other", "A.I.O", "Mac", "Multiple"]
-booked_by = ["Neil", "Matt", "Dan"]
+booked_by = ["Neil", "Matt", "Dan", None, None, None, None]
 assigned_to = [None, "Neil", "Matt", "Dan"]
 location = [None, "Self (L)", "Shelf (R)", "Bench", "Rebuild", "Completed", "Desktop", "With customer", "Part finding"]
 status = [None, "Booked in", "Assigned", "Awaiting parts", "Awaiting customer decision", "Completed", "Collected",
@@ -54,7 +54,7 @@ cursor.execute("SELECT `ti_id`, `eq_id`, `bb_id`, `ast_id`, `loc_id`, `ts_id`, `
                "`ti_email`, `ti_date`, `ti_password`, `ti_details`, `ti_quote`, `ti_charger`, `ti_case`, `ti_other`,"
                "`ti_workdone`, `ti_created`, `ti_updated`, `ti_to_do_by`, `ti_rebuild_current_os`,"
                "`ti_rebuild_wanted_os`"
-               " FROM tickets WHERE `ts_id` != 6 ORDER BY `ti_id` DESC LIMIT 5")
+               " FROM tickets WHERE `ts_id` != 6 ORDER BY `ti_id` DESC")
 
 
 def map_ticket(ticket):
@@ -209,6 +209,11 @@ for ticket in map(create_secondary_objects, ticket_objs):
         )
         credential.save()
 
+    try:
+        quote = float(ticket["quote"]) if ticket["quote"] else None
+    except ValueError:
+        quote = None
+
     ticket_o = tickets.models.Ticket(
         id=int(ticket["id"]),
         date=ticket["created"],
@@ -219,7 +224,7 @@ for ticket in map(create_secondary_objects, ticket_objs):
         assigned_to=ticket["assigned_to"],
         current_os=ticket["current_os"],
         wanted_os=ticket["wanted_os"],
-        quote=float(ticket["quote"]) if ticket["quote"] else None,
+        quote=quote,
         has_charger=ticket["charger"],
         has_case=ticket["case"],
         other_equipment=ticket["other_equipment"],
