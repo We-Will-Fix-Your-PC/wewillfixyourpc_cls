@@ -9,7 +9,7 @@
             <g:title>{{ item.name }}</g:title>
             <g:description>{{ item.description }}</g:description>
             <g:link>https://wewillfixyourpc.co.uk</g:link>
-            <g:image_link>https://{{ request.get_host }}{{ item.images.first.image.url }}</g:image_link>
+            <g:image_link>{{ item.images.first.image.url }}</g:image_link>
             <g:brand>{{ item.brand }}</g:brand>
             <g:condition>{{ item.condition }}</g:condition>
             <g:availability>{% if item.available %}in stock{% else %}out of stock{% endif %}</g:availability>
