@@ -234,7 +234,7 @@ def send_ticket_update(request):
             }
             html_email = render_to_string("emails/ticket_update.html", context)
             plain_email = render_to_string("emails/ticket_update_plain.html", context)
-            text_message = f"Your We Will Fix Your PC repair (ticket #{ticket.id}) of a {ticket.equipment.name} is " \
+            text_message = f"Your We Will Fix Your PC repair (ticket #{ticket.id}) of a {ticket.equipment.name.lower()} is " \
                 f"complete and your device is ready to collect at your earliest convenience"
         elif update_type == "custom":
             context = {
@@ -244,7 +244,7 @@ def send_ticket_update(request):
             html_email = render_to_string("emails/ticket_update.html", context)
             plain_email = render_to_string("emails/ticket_update_plain.html", context)
             text_message = f"An update on your We Will Fix Your PC (ticket #{ticket.id}) repair of a " \
-                f"{ticket.equipment.name} :\n {request.POST.get('update_text')}"
+                f"{ticket.equipment.name.lower()} :\n {request.POST.get('update_text')}"
         else:
             return HttpResponseBadRequest()
 
