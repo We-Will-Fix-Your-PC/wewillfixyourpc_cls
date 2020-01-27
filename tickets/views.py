@@ -136,7 +136,6 @@ def new_ticket_step2(request, customer_id):
     ticket = models.Ticket(customer=customer_id)
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
-        form.clean()
         if form.is_valid():
             form.save()
 
