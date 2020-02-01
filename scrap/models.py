@@ -4,7 +4,6 @@ from ckeditor_uploader.fields import RichTextUploadingField
 
 class ItemCategory(models.Model):
     name = models.CharField(max_length=255, blank=False)
-    google_category = models.CharField(max_length=255, blank=False)
 
     class Meta:
         verbose_name_plural = "Item categories"
@@ -14,20 +13,12 @@ class ItemCategory(models.Model):
 
 
 class Item(models.Model):
-    CONDITIONS = (
-        ('new', 'New'),
-        ('refurbished', 'Refurbished'),
-        ('used', 'Used')
-    )
-
     category = models.ForeignKey(ItemCategory, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=False)
-    mpn = models.CharField(max_length=255, blank=False, verbose_name='Manufacturer part number')
     brand = models.CharField(max_length=255, blank=False)
-    condition = models.CharField(max_length=30, blank=False, choices=CONDITIONS)
+    condition = models.CharField(max_length=30, blank=False)
     price = models.DecimalField(decimal_places=2, max_digits=10, blank=False)
     description = models.TextField()
-    available = models.BooleanField()
     changes_made = RichTextUploadingField(blank=True, null=True)
 
     def __str__(self):

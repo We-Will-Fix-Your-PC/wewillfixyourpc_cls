@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class SaleConfig(AppConfig):
-    name = 'sale'
+class ScrapConfig(AppConfig):
+    name = 'scrap'

@@ -2,11 +2,11 @@
 
 {% block content %}
     <div class="container-fluid my-4">
-        <h1>Items for sale</h1>
-        {% if perms.sale.add_item %}
-            <a class="btn btn-success" href="{% url 'sale:new_item' %}">New item</a>
+        <h1>Items for scrap</h1>
+        {% if perms.scrap.add_item %}
+            <a class="btn btn-success" href="{% url 'scrap:new_item' %}">New item</a>
         {% endif %}
-        <a class="btn btn-secondary" href="{% url 'sale:settings' %}">Settings</a>
+        <a class="btn btn-secondary" href="{% url 'scrap:settings' %}">Settings</a>
         <hr>
         <table class="table mt-3">
             <thead>
@@ -29,17 +29,17 @@
                     <td>{{ item.price }}</td>
                     <td>
                         <div class="btn-group">
-                            {% if perms.sale.change_item %}
-                                <a href="{% url 'sale:edit_item' item.id %}" class="btn btn-success btn-sm" title="Edit">
+                            {% if perms.scrap.change_item %}
+                                <a href="{% url 'scrap:edit_item' item.id %}" class="btn btn-success btn-sm" title="Edit">
                                     <i class="material-icons">edit</i>
                                 </a>
-                            {% elif perms.sale.view_item %}
-                                <a href="{% url 'sale:view_item' item.id %}" class="btn btn-primary btn-sm" title="View">
+                            {% elif perms.scrap.view_item %}
+                                <a href="{% url 'scrap:view_item' item.id %}" class="btn btn-primary btn-sm" title="View">
                                     <i class="material-icons">view</i>
                                 </a>
                             {% endif %}
-                            {% if perms.sale.delete_item %}
-                                <a href="{% url 'sale:delete_item' item.id %}" class="btn btn-danger btn-sm" title="Delete">
+                            {% if perms.scrap.delete_item %}
+                                <a href="{% url 'scrap:delete_item' item.id %}" class="btn btn-danger btn-sm" title="Delete">
                                     <i class="material-icons">delete</i>
                                 </a>
                             {% endif %}
