@@ -40,3 +40,6 @@ EquipmentTypeFormSet = forms.modelformset_factory(models.EquipmentType, fields=(
 StatusFormSet = forms.modelformset_factory(models.Status, fields=('name',), can_delete=True)
 LocationFormSet = forms.modelformset_factory(models.Location, fields=('name', 'os_required'), can_delete=True)
 OSTypeFormSet = forms.modelformset_factory(models.OSType, fields=('name',), can_delete=True)
+TicketImageFormSet = forms.inlineformset_factory(
+    models.Ticket, models.TicketImage, fields=('image',), can_delete=True, extra=1
+)

@@ -1,0 +1,13 @@
+from django.urls import path
+from . import views
+
+app_name = 'sale'
+urlpatterns = [
+    path('', views.view_items, name="view_items"),
+    path('feed/', views.item_feed, name="item_feed"),
+    path('new/', views.new_item, name="new_item"),
+    path('item/<item_id>/', views.view_item, name="view_item"),
+    path('item/<item_id>/edit/', views.edit_item, name="edit_item"),
+    path('item/<item_id>/delete/', views.delete_item, name="delete_item"),
+    path('settings/', views.item_settings, name="settings"),
+]

@@ -111,6 +111,14 @@ class TicketRevision(models.Model):
         return json.loads(self.data)
 
 
+class TicketImage(models.Model):
+    item = models.ForeignKey(Ticket, related_name='images', on_delete=models.CASCADE)
+    image = models.FileField(blank=False)
+
+    def __str__(self):
+        return f"#{self.id}"
+
+
 class Job(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     assigned_to = models.UUIDField()

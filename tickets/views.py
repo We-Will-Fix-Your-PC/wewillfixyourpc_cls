@@ -132,12 +132,17 @@ def search_customer(request):
 
 @login_required
 @permission_required('tickets.add_ticket', raise_exception=True)
+@permission_required('tickets.add_ticketimage', raise_exception=True)
 def new_ticket_step2(request, customer_id):
     ticket = models.Ticket(customer=customer_id)
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
-        if form.is_valid():
+        images = forms.TicketImageFormSet(request.POST, files=request.FILES, prefix='images')
+        images.clean()
+        if form.is_valid() and images.is_valid():
             form.save()
+            images.instance = form.instance
+            images.save()
 
             num = 1 + form.cleaned_data["additional_labels"]
             if form.cleaned_data["has_charger"]:
@@ -157,20 +162,28 @@ def new_ticket_step2(request, customer_id):
             return redirect("tickets:view_tickets")
     else:
         form = forms.TicketForm(instance=ticket)
+        images = forms.TicketImageFormSet(prefix='images')
 
     return render(request, "tickets/ticket_form.html", {
         "form": form,
+        "images": images,
         "title": "New ticket"
     })
 
 
 @login_required
 @permission_required('tickets.change_ticket', raise_exception=True)
+@permission_required('tickets.add_ticketimage', raise_exception=True)
+@permission_required('tickets.change_ticketimage', raise_exception=True)
+@permission_required('tickets.delete_ticketimage', raise_exception=True)
+@permission_required('tickets.view_ticketimage', raise_exception=True)
 def edit_ticket(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
-        if form.is_valid():
+        images = forms.TicketImageFormSet(request.POST, files=request.FILES, prefix='images', instance=ticket)
+        images.clean()
+        if form.is_valid() and images.is_valid():
             for e in form.changed_data:
                 if e not in ['updater', 'additional_labels']:
                     models.TicketRevision(
@@ -184,6 +197,7 @@ def edit_ticket(request, ticket_id):
                         })
                     ).save()
             form.save()
+            images.save()
 
             num = form.cleaned_data["additional_labels"]
             if num:
@@ -192,9 +206,11 @@ def edit_ticket(request, ticket_id):
             return redirect("tickets:view_tickets")
     else:
         form = forms.TicketForm(instance=ticket)
+        images = forms.TicketImageFormSet(prefix='images', instance=ticket)
 
     return render(request, "tickets/ticket_form.html", {
         "form": form,
+        "images": images,
         "title": "Edit ticket"
     })
 
@@ -244,7 +260,7 @@ def send_ticket_update(request):
             html_email = render_to_string("emails/ticket_update.html", context)
             plain_email = render_to_string("emails/ticket_update_plain.html", context)
             text_message = f"An update on your We Will Fix Your PC (ticket #{ticket.id}) repair of a " \
-                f"{ticket.equipment.name.lower()} :\n {request.POST.get('update_text')}"
+                f"{ticket.equipment.name.lower()}:\n {request.POST.get('update_text')}"
         else:
             return HttpResponseBadRequest()
 
