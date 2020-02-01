@@ -27,6 +27,7 @@ urlpatterns = [
     path('checkin/', include('checkin.urls', namespace='checkin')),
     path('tickets/', include('tickets.urls', namespace='tickets')),
     path('sale/', include('sale.urls', namespace='sale')),
+    path('scrap/', include('scrap.urls', namespace='scrap')),
     path("auth/", include("django_keycloak_auth.urls")),
 ]
 

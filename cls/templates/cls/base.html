@@ -42,6 +42,12 @@
                         <a class="nav-link" href="{{ items_url }}">For sale</a>
                     </li>
                 {% endif %}
+                {% if perms.scrap.view_item %}
+                    {% url 'scrap:view_items' as items_url %}
+                    <li class="nav-item{% if request.get_full_path == items_url %} active{% endif %}">
+                        <a class="nav-link" href="{{ items_url }}">Scrap</a>
+                    </li>
+                {% endif %}
             </ul>
             {% if perms.customers.view_customer and perms.tickets.view_ticket %}
                 <form class="form-inline my-2 my-lg-0" method="get" action="{% url 'cls:search' %}">

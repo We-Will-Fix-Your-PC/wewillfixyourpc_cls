@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'checkin',
     'tickets',
     'sale',
+    'scrap',
     'crispy_forms',
     'ckeditor',
     'ckeditor_uploader',
