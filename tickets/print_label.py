@@ -48,23 +48,31 @@ LABEL_TEMPLATE = jinja2.Template("""
             h1 {
                 font-size: 40px;
             }
+            img {
+                max-width: 100%
+            }
         </style>
     </head>
     <body>
-        <h2>Ticket #{{ id }}</h2>
-        <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
-        <p>
-        {% if customer.email %}
-            <b>Email:</b>
-            {{ customer.email }}
-            <br>
-        {% endif %}
-        {% for phone in customer.attributes.phone %}
-            <b>Phone:</b>
-            {{ phone }}
-            <br>
-        {% endfor %}
-        </p>
+        <div style="width:30%">
+          <img src="data:image/png;base64,{{ qr }}" />
+        </div>
+        <div style="width:70%>
+            <h2>Ticket #{{ id }}</h2>
+            <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
+            <p>
+            {% if customer.email %}
+                <b>Email:</b>
+                {{ customer.email }}
+                <br>
+            {% endif %}
+            {% for phone in customer.attributes.phone %}
+                <b>Phone:</b>
+                {{ phone }}
+                <br>
+            {% endfor %}
+            </p>
+        </div
     </body>
 </html>
 """)
@@ -293,11 +301,43 @@ def _get_default_driver(driver: LabelDriver = None):
     module_name, class_name = settings.PRINTER_DRIVER.rsplit('.', 1)
     return getattr(importlib.import_module(module_name), class_name)(**settings.PRINTER_DRIVER_OPS)
 
+def make_qr(link):
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(link)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    target = io.BytesIO()
+    img.save(target, 'png')
+    qr_b64 = base64.b64encode(target.getvalue()).decode()
+    return qr_b64
+
 
 def print_ticket_label(ticket: models.Ticket, driver: LabelDriver = None, num=1):
     driver = _get_default_driver(driver)
 
-    doc = HTML(string=LABEL_TEMPLATE.render(id=ticket.id, customer=ticket.get_customer(), page_width=driver.width))\
+    url = f"{settings.EXTERNAL_URL_BASE}{reverse('tickets:view_ticket', args=(ticket.id,))}"
+
+    r = requests.post("https://firebasedynamiclinks.googleapis.com/v1/shortLinks", params={
+        'key': settings.FIREBASE_URL_API_KEY
+    }, json={
+        "dynamicLinkInfo": {
+            "domainUriPrefix": "https://wwfypc.xyz",
+            "link": url,
+        },
+        "suffix": {
+            "option": "SHORT"
+        }
+    })
+    r.raise_for_status()
+    short_url = r.json().get("shortLink")
+
+    doc = HTML(string=LABEL_TEMPLATE.render(
+        id=ticket.id, customer=ticket.get_customer(), qr=make_qr(short_url), page_width=driver.width
+    ))\
         .render(enable_hinting=True)
     for i in range(num):
         driver.print_doc(doc)
@@ -321,23 +361,12 @@ def print_ticket_receipt(ticket: models.Ticket, driver: LabelDriver=None, num=1)
             "option": "UNGUESSABLE"
         }
     })
-    print(r.text)
     r.raise_for_status()
     short_url = r.json().get("shortLink")
 
-    qr = qrcode.QRCode(
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(short_url)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    target = io.BytesIO()
-    img.save(target, 'png')
-    qr_b64 = base64.b64encode(target.getvalue()).decode()
-
-    doc = HTML(string=RECEIPT_TEMPLATE.render(ticket=ticket, qr=qr_b64, url=short_url, page_width=driver.width))\
+    doc = HTML(string=RECEIPT_TEMPLATE.render(
+        ticket=ticket, qr=make_qr(short_url), url=short_url, page_width=driver.width
+    ))\
         .render(enable_hinting=True)
     for i in range(num):
         driver.print_doc(doc)

@@ -3,6 +3,9 @@
 {% block content %}
     <div class="container mt-4">
         <h1>View ticket</h1>
+        {% if perms.tickets.change_ticket %}
+            <a class="btn btn-primary" href="{% url 'tickets:edit_ticket' ticket.id %}">Edit</a>
+        {% endif %}
         <div class="row">
             <div class="col">
                 <b>ID:</b> {{ ticket.id }}
