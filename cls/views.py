@@ -93,7 +93,6 @@ def slack_interactivity(request):
         return HttpResponse(status=403)
 
     payload = json.loads(request.POST.get("payload", "{}"))
-    print(payload)
     response_url = payload.get("response_url")
     trigger_id = payload.get("trigger_id")
 

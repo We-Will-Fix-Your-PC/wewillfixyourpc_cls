@@ -254,7 +254,7 @@ def do_send_ticket_update(ticket: models.Ticket, update_type: str, **kwargs):
         html_email = render_to_string("emails/ticket_update.html", context)
         plain_email = render_to_string("emails/ticket_update_plain.html", context)
         text_message = f"An update on your We Will Fix Your PC (ticket #{ticket.id}) repair of a " \
-                       f"{ticket.equipment.name.lower()}:\n {kwargs.get('update_text', '')}"
+                       f"{ticket.equipment.name.lower()}: {kwargs.get('update_text', '')}"
     else:
         return HttpResponseBadRequest()
 
@@ -290,7 +290,6 @@ def do_send_ticket_update(ticket: models.Ticket, update_type: str, **kwargs):
                 "api_key": settings.NEXMO_KEY,
                 "api_secret": settings.NEXMO_SECRET
             })
-            print(r.text)
     else:
         for n in other_numbers:
             requests.post("https://rest.nexmo.com/sms/json", data={
@@ -399,7 +398,7 @@ def slack_send_ticket_update2(response_url, trigger_id, metadata, values):
     ticket = get_object_or_404(models.Ticket, id=metadata)
     threading.Thread(target=do_send_ticket_update, args=(ticket, "custom"), kwargs={
         "update_text": values.get("ticket_update_text", {}).get("ticket_update_text", {}).get("value", "")
-    }).run()
+    }, daemon=True).start()
     return {}
 
 
