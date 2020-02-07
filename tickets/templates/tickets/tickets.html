@@ -41,7 +41,7 @@
                     <a class="nav-link" data-toggle="tab" href="#tickets_completed" role="tab">Completed</a>
                 </li>
             </ul>
-            <div class="tab-content">
+            <div class="tab-content mw-100" style="overflow-x: auto">
                 <div class="tab-pane fade show active" id="tickets_today" role="tabpanel">
                     <h2>Today</h2>
                     {% include 'tickets/ticket_table_template.html' with tickets=today_tickets %}

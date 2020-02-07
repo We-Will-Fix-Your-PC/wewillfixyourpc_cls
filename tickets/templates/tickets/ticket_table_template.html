@@ -18,7 +18,7 @@
     <tbody>
     {% for ticket in tickets %}
         {% with customer=ticket.get_customer booked_by=ticket.get_booked_by %}
-            <tr>
+            <tr{% if ticket.assigned_to %} style="background-color: {{ ticket.get_assigned_to.attributes.colour.0 }}"{% endif %}>
                 <td><input type="checkbox" name="select-ticket-{{ ticket.id }}"></td>
                 <td>{{ ticket.id }}</td>
                 <td>{{ ticket.date_updated }}</td>

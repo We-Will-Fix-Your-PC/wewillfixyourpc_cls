@@ -1,7 +1,7 @@
 {% extends "cls/base.html" %}
 
 {% block content %}
-    <div class="container-fluid my-4">
+    <div class="container-fluid my-4 mw-100" style="overflow-x: auto">
         <h1>Customers</h1>
         {% if perms.customers.add_customer %}
             <a class="btn btn-success" href="{% url 'customers:new' %}">New customer</a>

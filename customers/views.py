@@ -155,7 +155,7 @@ def new_customer(request):
                 })
                 return response
     else:
-        name = request.GET.get("customer_name", "").spilt(" ")
+        name = request.GET.get("customer_name", "").split(" ")
 
         form = forms.CustomerForm(prefix="primary", initial={
             "first_name": name[0],
