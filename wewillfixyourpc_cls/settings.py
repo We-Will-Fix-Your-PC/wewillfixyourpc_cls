@@ -193,6 +193,10 @@ FIREBASE_URL_API_KEY = os.getenv("FIREBASE_URL_KEY")
 NEXMO_KEY = os.getenv("NEXMO_KEY")
 NEXMO_SECRET = os.getenv("NEXMO_SECRET")
 
+SLACK_URL = os.getenv("SLACK_WEBHOOK")
+SLACK_INTERACTIVITY_TOKEN = os.getenv("SLACK_INTERACTIVITY_TOKEN")
+SLACK_ACCESS_TOKEN = os.getenv("SLACK_ACCESS_TOKEN")
+
 PRINTER_DRIVER = 'tickets.print_label.BrotherDriver'
 PRINTER_DRIVER_OPS = {
     "printer": f"tcp://{os.getenv('LABEL_PRINTER', '')}:9100",

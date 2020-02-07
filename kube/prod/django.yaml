@@ -112,6 +112,9 @@ spec:
             - secretRef:
                 name: nexmo
               prefix: "NEXMO_"
+            - secretRef:
+                name: slack
+              prefix: "SLACK_"
       containers:
         - name: gunicorn
           image: theenbyperor/wwfypc-cls:(version)
@@ -144,6 +147,9 @@ spec:
             - secretRef:
                 name: nexmo
               prefix: "NEXMO_"
+            - secretRef:
+                name: slack
+              prefix: "SLACK_"
 ---
 ---
 apiVersion: v1
