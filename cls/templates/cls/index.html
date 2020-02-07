@@ -45,7 +45,7 @@
                                     <td>{{ repair.equipment.name }}</td>
                                     <td>{{ repair.get_booked_by.firstName }}</td>
                                     <td>
-                                        <a href="" class="btn btn-success">Request update</a>
+                                        <a href="{% url 'tickets:request_update' repair.id %}" class="btn btn-success">Request update</a>
                                     </td>
                                 </tr>
                             {% endfor %}

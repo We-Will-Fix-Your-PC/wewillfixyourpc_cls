@@ -7,10 +7,11 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseNotAllowed, Http404, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
+import threading
 
 import django_keycloak_auth.clients
 import django_keycloak_auth.users
@@ -235,6 +236,72 @@ def print_ticket_receipt(request, ticket_id):
     return redirect(request.META.get("HTTP_REFERER"))
 
 
+def do_send_ticket_update(ticket: models.Ticket, update_type: str, **kwargs):
+    if update_type == "ready":
+        context = {
+            "content": "Your repair is complete and your device is ready to collect at your earliest convenience",
+            "ticket": ticket
+        }
+        html_email = render_to_string("emails/ticket_update.html", context)
+        plain_email = render_to_string("emails/ticket_update_plain.html", context)
+        text_message = f"Your We Will Fix Your PC repair (ticket #{ticket.id}) of a {ticket.equipment.name.lower()} " \
+                       f"is complete and your device is ready to collect at your earliest convenience"
+    elif update_type == "custom":
+        context = {
+            "content": kwargs.get("update_text", ""),
+            "ticket": ticket
+        }
+        html_email = render_to_string("emails/ticket_update.html", context)
+        plain_email = render_to_string("emails/ticket_update_plain.html", context)
+        text_message = f"An update on your We Will Fix Your PC (ticket #{ticket.id}) repair of a " \
+                       f"{ticket.equipment.name.lower()}:\n {kwargs.get('update_text', '')}"
+    else:
+        return HttpResponseBadRequest()
+
+    customer = ticket.get_customer()
+
+    if customer.get("email"):
+        mail = EmailMultiAlternatives(
+            'An update on your We Will Fix Your PC repair', plain_email,
+            'noreply@noreply.wewillfixyourpc.co.uk', [customer.get("email")]
+        )
+        mail.attach_alternative(html_email, 'text/html')
+        mail.send()
+
+    mobile_numbers = []
+    other_numbers = []
+    for n in customer.get("attributes", {}).get("phone", []):
+        try:
+            n = phonenumbers.parse(n, settings.PHONENUMBER_DEFAULT_REGION)
+        except phonenumbers.phonenumberutil.NumberParseException:
+            continue
+        if phonenumbers.is_valid_number(n):
+            if phonenumbers.phonenumberutil.number_type(n) == phonenumbers.PhoneNumberType.MOBILE:
+                mobile_numbers.append(n)
+            else:
+                other_numbers.append(n)
+
+    if len(mobile_numbers):
+        for n in mobile_numbers:
+            r = requests.post("https://rest.nexmo.com/sms/json", data={
+                "from": "We Will Fix",
+                "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
+                "text": text_message,
+                "api_key": settings.NEXMO_KEY,
+                "api_secret": settings.NEXMO_SECRET
+            })
+            print(r.text)
+    else:
+        for n in other_numbers:
+            requests.post("https://rest.nexmo.com/sms/json", data={
+                "from": "We Will Fix",
+                "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
+                "text": text_message,
+                "api_key": settings.NEXMO_KEY,
+                "api_secret": settings.NEXMO_SECRET
+            })
+
+
 @login_required
 @permission_required('tickets.change_ticket', raise_exception=True)
 def send_ticket_update(request):
@@ -243,69 +310,7 @@ def send_ticket_update(request):
             raise Http404()
         ticket = get_object_or_404(models.Ticket, id=request.POST.get("ticket_id"))
         update_type = request.POST.get("update_type")
-        if update_type == "ready":
-            context = {
-                "content": "Your repair is complete and your device is ready to collect at your earliest convenience",
-                "ticket": ticket
-            }
-            html_email = render_to_string("emails/ticket_update.html", context)
-            plain_email = render_to_string("emails/ticket_update_plain.html", context)
-            text_message = f"Your We Will Fix Your PC repair (ticket #{ticket.id}) of a {ticket.equipment.name.lower()} is " \
-                f"complete and your device is ready to collect at your earliest convenience"
-        elif update_type == "custom":
-            context = {
-                "content": request.POST.get("update_text"),
-                "ticket": ticket
-            }
-            html_email = render_to_string("emails/ticket_update.html", context)
-            plain_email = render_to_string("emails/ticket_update_plain.html", context)
-            text_message = f"An update on your We Will Fix Your PC (ticket #{ticket.id}) repair of a " \
-                f"{ticket.equipment.name.lower()}:\n {request.POST.get('update_text')}"
-        else:
-            return HttpResponseBadRequest()
-
-        customer = ticket.get_customer()
-
-        if customer.get("email"):
-            mail = EmailMultiAlternatives(
-                'An update on your We Will Fix Your PC repair', plain_email,
-                'noreply@noreply.wewillfixyourpc.co.uk', [customer.get("email")]
-            )
-            mail.attach_alternative(html_email, 'text/html')
-            mail.send()
-
-        mobile_numbers = []
-        other_numbers = []
-        for n in customer.get("attributes", {}).get("phone", []):
-            try:
-                n = phonenumbers.parse(n, settings.PHONENUMBER_DEFAULT_REGION)
-            except phonenumbers.phonenumberutil.NumberParseException:
-                continue
-            if phonenumbers.is_valid_number(n):
-                if phonenumbers.phonenumberutil.number_type(n) == phonenumbers.PhoneNumberType.MOBILE:
-                    mobile_numbers.append(n)
-                else:
-                    other_numbers.append(n)
-
-        if len(mobile_numbers):
-            for n in mobile_numbers:
-                r = requests.post("https://rest.nexmo.com/sms/json", data={
-                    "from": "We Will Fix",
-                    "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
-                    "text": text_message,
-                    "api_key": settings.NEXMO_KEY,
-                    "api_secret": settings.NEXMO_SECRET
-                })
-                print(r.text)
-        else:
-            for n in other_numbers:
-                requests.post("https://rest.nexmo.com/sms/json", data={
-                    "from": "We Will Fix",
-                    "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
-                    "text": text_message,
-                    "api_key": settings.NEXMO_KEY,
-                    "api_secret": settings.NEXMO_SECRET
-                })
+        do_send_ticket_update(ticket, update_type, update_text=request.POST.get("update_text"))
 
     return redirect(request.META.get("HTTP_REFERER"))
 
@@ -319,6 +324,83 @@ def view_ticket(request, ticket_id):
     return render(request, "tickets/ticket.html", {
         "ticket": ticket
     })
+
+
+@login_required
+def request_update(request, ticket_id):
+    ticket = get_object_or_404(models.Ticket, id=ticket_id)
+    if str(ticket.customer) != request.user.username:
+        raise PermissionError()
+
+    customer = ticket.get_customer()
+    requests.post(settings.SLACK_URL, json={
+        "blocks": [{
+            "type": "section",
+            "text": {
+                "text": f"{customer.get('firstName')} {customer.get('lastName')} has requested an update"
+                        f" on ticket #{ticket.id}",
+                "type": "plain_text"
+            }
+        }, {
+            "type": "divider"
+        }, {
+            "type": "actions",
+            "elements": [{
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Send update"
+                },
+                "action_id": "send_ticket_update",
+                "value": f"{ticket.id}"
+            }]
+        }]
+    }).raise_for_status()
+
+    return redirect('cls:index')
+
+
+def slack_send_ticket_update(response_url, trigger_id, value):
+    r = requests.post("https://slack.com/api/views.open", headers={
+        "Authorization": f"Bearer {settings.SLACK_ACCESS_TOKEN}"
+    }, json={
+        "trigger_id": trigger_id,
+        "view": {
+            "type": "modal",
+            "callback_id": "send_ticket_update",
+            "private_metadata": value,
+            "title": {
+                "type": "plain_text",
+                "text": "Send update"
+            },
+            "submit": {
+                "type": "plain_text",
+                "text": "Submit"
+            },
+            "blocks": [{
+                "type": "input",
+                "block_id": "ticket_update_text",
+                "label": {
+                    "type": "plain_text",
+                    "text": "Update text"
+                },
+                "element": {
+                    "type": "plain_text_input",
+                    "multiline": True,
+                    "action_id": "ticket_update_text"
+                }
+            }],
+        }
+    })
+    r.raise_for_status()
+
+
+def slack_send_ticket_update2(response_url, trigger_id, metadata, values):
+    ticket = get_object_or_404(models.Ticket, id=metadata)
+    threading.Thread(target=do_send_ticket_update, args=(ticket, "custom"), kwargs={
+        "update_text": values.get("ticket_update_text", {}).get("ticket_update_text", {}).get("value", "")
+    }).run()
+    return {}
 
 
 @login_required

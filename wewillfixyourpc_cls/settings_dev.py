@@ -31,7 +31,7 @@ OTP_SECRET = 'C6NHIELPLV7R3OCG'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'wewillfixyourpc-cls.eu.ngrok.io']
+ALLOWED_HOSTS = ['localhost', 'wwfypc-cls.eu.ngrok.io']
 
 
 # Application definition
@@ -156,6 +156,8 @@ with open(os.path.join(BASE_DIR, "secrets/google.json")) as f:
     google_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/nexmo.json")) as f:
     nexmo_conf = json.load(f)
+with open(os.path.join(BASE_DIR, "secrets/slack.json")) as f:
+    slack_conf = json.load(f)
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 UPDATES_EMAIL = "test@example.com"
@@ -170,6 +172,10 @@ FIREBASE_URL_API_KEY = google_conf["short_links"]
 
 NEXMO_KEY = nexmo_conf["key"]
 NEXMO_SECRET = nexmo_conf["secret"]
+
+SLACK_URL = slack_conf["webhook"]
+SLACK_INTERACTIVITY_TOKEN = slack_conf["interactivity_token"]
+SLACK_ACCESS_TOKEN = slack_conf["access_token"]
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
