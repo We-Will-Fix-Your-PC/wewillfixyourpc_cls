@@ -1,6 +1,6 @@
 import json
 import urllib.parse
-
+import copy
 import phonenumbers
 import requests
 from django.conf import settings
@@ -188,6 +188,7 @@ def new_ticket_step2(request, customer_id):
 def edit_ticket(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
     if request.method == 'POST':
+        ticket_2 = copy.deepcopy(ticket)
         form = forms.TicketForm(request.POST, instance=ticket)
         images = forms.TicketImageFormSet(request.POST, files=request.FILES, prefix='images', instance=ticket)
         images.clean()
@@ -200,7 +201,7 @@ def edit_ticket(request, ticket_id):
                         data=json.dumps({
                             "type": "update",
                             "field_name": form.fields[e].label,
-                            "old_value": str(getattr(ticket, e)),
+                            "old_value": str(getattr(ticket_2, e)),
                             "new_value": str(form.cleaned_data[e])
                         })
                     ).save()
