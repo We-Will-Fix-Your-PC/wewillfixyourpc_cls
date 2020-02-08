@@ -38,6 +38,8 @@ class Location(models.Model):
 
 
 def get_user(user_id):
+    if not user_id:
+        return None
     expiry = timezone.now() - datetime.timedelta(minutes=10)
     customer = customers.models.CustomerCache.objects.filter(cust_id=user_id, last_updated__gte=expiry) \
         .order_by('-last_updated').first()
