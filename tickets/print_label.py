@@ -54,10 +54,10 @@ LABEL_TEMPLATE = jinja2.Template("""
         </style>
     </head>
     <body>
-        <div style="width:30%">
+        <div style="width:30%;float:left;">
           <img src="data:image/png;base64,{{ qr }}" />
         </div>
-        <div style="width:70%">
+        <div style="width:70%;float:left;">
             <h2>Ticket #{{ id }}</h2>
             <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
             <p>
