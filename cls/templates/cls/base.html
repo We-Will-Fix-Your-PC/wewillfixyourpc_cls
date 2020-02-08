@@ -40,7 +40,7 @@
                 {% if perms.sale.view_item %}
                     {% url 'sale:view_items' as items_url %}
                     <li class="nav-item{% if request.get_full_path == items_url %} active{% endif %}">
-                        <a class="nav-link" href="{{ items_url }}">For sale</a>
+                        <a class="nav-link" href="{{ items_url }}">For Sale</a>
                     </li>
                 {% endif %}
                 {% if perms.scrap.view_item %}
