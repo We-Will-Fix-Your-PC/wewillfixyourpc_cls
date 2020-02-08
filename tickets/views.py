@@ -139,6 +139,7 @@ def new_ticket_step2(request, customer_id):
     ticket = models.Ticket(customer=customer_id)
     if request.method == 'POST':
         form = forms.TicketForm(request.POST, instance=ticket)
+        form.fields['updater'].required = False
         images = forms.TicketImageFormSet(request.POST, files=request.FILES, prefix='images')
         images.clean()
         if form.is_valid() and images.is_valid():
@@ -153,9 +154,13 @@ def new_ticket_step2(request, customer_id):
                 num += 1
             print_label.print_ticket_label(form.instance, num=num)
 
+            updater = form.cleaned_data['updater']
+            if not updater:
+                updater = form.cleaned_data["booked_by"]
+
             models.TicketRevision(
                 ticket=form.instance,
-                user=form.cleaned_data['updater'],
+                user=updater,
                 data=json.dumps({
                     "type": "create"
                 })
@@ -164,6 +169,7 @@ def new_ticket_step2(request, customer_id):
             return redirect("tickets:view_tickets")
     else:
         form = forms.TicketForm(instance=ticket)
+        form.fields['updater'].required = False
         images = forms.TicketImageFormSet(prefix='images')
 
     return render(request, "tickets/ticket_form.html", {
