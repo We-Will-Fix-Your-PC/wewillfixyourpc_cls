@@ -60,7 +60,8 @@ LABEL_TEMPLATE = jinja2.Template("""
         <div style="width:70%;float:left;">
             <h2>Ticket #{{ id }}</h2>
             <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
-            <p>
+        </div>
+        <p>
             {% if customer.email %}
                 <b>Email:</b>
                 {{ customer.email }}
@@ -71,8 +72,7 @@ LABEL_TEMPLATE = jinja2.Template("""
                 {{ phone }}
                 <br>
             {% endfor %}
-            </p>
-        </div
+        </p>
     </body>
 </html>
 """)
