@@ -57,7 +57,7 @@ LABEL_TEMPLATE = jinja2.Template("""
         <div style="width:30%">
           <img src="data:image/png;base64,{{ qr }}" />
         </div>
-        <div style="width:70%>
+        <div style="width:70%">
             <h2>Ticket #{{ id }}</h2>
             <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
             <p>
@@ -339,7 +339,7 @@ def print_ticket_label(ticket: models.Ticket, driver: LabelDriver = None, num=1)
         id=ticket.id, customer=ticket.get_customer(), qr=make_qr(short_url), page_width=driver.width
     ))\
         .render(enable_hinting=True)
-    for i in range(num):
+    for _ in range(num):
         driver.print_doc(doc)
 
 
@@ -368,5 +368,5 @@ def print_ticket_receipt(ticket: models.Ticket, driver: LabelDriver=None, num=1)
         ticket=ticket, qr=make_qr(short_url), url=short_url, page_width=driver.width
     ))\
         .render(enable_hinting=True)
-    for i in range(num):
+    for _ in range(num):
         driver.print_doc(doc)

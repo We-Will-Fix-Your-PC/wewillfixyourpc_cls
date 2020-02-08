@@ -7,7 +7,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -317,8 +318,8 @@ def send_ticket_update(request):
 @login_required
 def view_ticket(request, ticket_id):
     ticket = get_object_or_404(models.Ticket, id=ticket_id)
-    if not (request.user.has_perm("tickets.view_tickets") or str(ticket.customer) == request.user.username):
-        raise PermissionError()
+    if not (request.user.has_perm("tickets.view_ticket") or str(ticket.customer) == request.user.username):
+        raise PermissionDenied()
 
     return render(request, "tickets/ticket.html", {
         "ticket": ticket
