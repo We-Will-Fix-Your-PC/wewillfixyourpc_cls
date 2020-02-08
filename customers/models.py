@@ -10,7 +10,7 @@ class CustomerCache(models.Model):
 class Credential(models.Model):
     customer = models.UUIDField()
     name = models.CharField(max_length=255)
-    username = models.CharField(max_length=255)
+    username = models.CharField(max_length=255, blank=True, null=True)
     password = models.CharField(max_length=255)
 
     def __str__(self):

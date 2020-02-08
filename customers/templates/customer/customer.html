@@ -68,7 +68,7 @@
                         {% for credential in credentials %}
                             <tr>
                             <td>{{ credential.name }}</td>
-                            <td>{{ credential.username }}</td>
+                            <td>{% if credential.username %}{{ credential.username }}{% else %}N/A{% endif %}</td>
                             <td>{{ credential.password }}</td>
                             <td>
                                 {% if perms.customers.change_credential %}
