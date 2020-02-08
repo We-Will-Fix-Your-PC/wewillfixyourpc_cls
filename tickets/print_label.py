@@ -335,11 +335,11 @@ def print_ticket_label(ticket: models.Ticket, driver: LabelDriver = None, num=1)
     r.raise_for_status()
     short_url = r.json().get("shortLink")
 
-    doc = HTML(string=LABEL_TEMPLATE.render(
-        id=ticket.id, customer=ticket.get_customer(), qr=make_qr(short_url), page_width=driver.width
-    ))\
-        .render(enable_hinting=True)
     for _ in range(num):
+        doc = HTML(string=LABEL_TEMPLATE.render(
+            id=ticket.id, customer=ticket.get_customer(), qr=make_qr(short_url), page_width=driver.width
+        ))\
+            .render(enable_hinting=True)
         driver.print_doc(doc)
 
 
@@ -364,9 +364,9 @@ def print_ticket_receipt(ticket: models.Ticket, driver: LabelDriver=None, num=1)
     r.raise_for_status()
     short_url = r.json().get("shortLink")
 
-    doc = HTML(string=RECEIPT_TEMPLATE.render(
-        ticket=ticket, qr=make_qr(short_url), url=short_url, page_width=driver.width
-    ))\
-        .render(enable_hinting=True)
     for _ in range(num):
+        doc = HTML(string=RECEIPT_TEMPLATE.render(
+            ticket=ticket, qr=make_qr(short_url), url=short_url, page_width=driver.width
+        ))\
+            .render(enable_hinting=True)
         driver.print_doc(doc)
