@@ -49,9 +49,16 @@
                         <a class="nav-link" href="{{ items_url }}">Scrap</a>
                     </li>
                 {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link" href="https://db.cardifftec.uk">Database</a>
-                </li>
+                {% if perms.tickets.view_ticket %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://db.cardifftec.uk">Database</a>
+                    </li>
+                {% endif %}
+                {% if perms.customers.view_customer %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://account.cardifftec.uk/auth/admin/wwfypc/console/">Keycloak</a>
+                    </li>
+                {% endif %}
             </ul>
             {% if perms.customers.view_customer and perms.tickets.view_ticket %}
                 <form class="form-inline my-2 my-lg-0" method="get" action="{% url 'cls:search' %}">
