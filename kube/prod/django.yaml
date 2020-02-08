@@ -145,6 +145,9 @@ spec:
                 name: keycloak
               prefix: "KEYCLOAK_"
             - secretRef:
+                name: firebase
+              prefix: "FIREBASE_"
+            - secretRef:
                 name: nexmo
               prefix: "NEXMO_"
             - secretRef:
