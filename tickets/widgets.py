@@ -55,10 +55,13 @@ class AgentWidget(forms.Select):
                     u.get("id"),
                     f'{u.get("firstName", "")} {u.get("lastName", "")} '
                 ),
-                client._client.get(
-                    url=client._client.get_full_url(
-                        'auth/admin/realms/{realm}/clients/{id}/roles/{role_name}/users'
-                            .format(realm=client._name, id=self._client.get("id"), role_name="agent")
+                filter(
+                    lambda u: u.get('enabled', False),
+                    client._client.get(
+                        url=client._client.get_full_url(
+                            'auth/admin/realms/{realm}/clients/{id}/roles/{role_name}/users'
+                                .format(realm=client._name, id=self._client.get("id"), role_name="agent")
+                        )
                     )
                 )
             )
