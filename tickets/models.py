@@ -55,7 +55,7 @@ class Ticket(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     equipment = models.ForeignKey(EquipmentType, on_delete=models.SET_NULL, null=True, blank=False)
-    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, blank=False)
+    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, blank=False, default=1)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=False)
     booked_by = models.UUIDField(null=True)
     assigned_to = models.UUIDField(blank=True, null=True)
