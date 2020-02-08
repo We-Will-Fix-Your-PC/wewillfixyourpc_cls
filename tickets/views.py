@@ -508,7 +508,7 @@ def view_job(request, job_id):
 @login_required
 @permission_required('tickets.view_job', raise_exception=True)
 def view_jobs(request, user_id):
-    jobs = models.Job.objects.filter(assigned_to=user_id)
+    jobs = models.Job.objects.filter(assigned_to=user_id, completed=False)
     tickets = models.Ticket.objects.filter(assigned_to=user_id)
     user = models.get_user(user_id)
     return render(request, "tickets/jobs.html", {
