@@ -276,37 +276,37 @@ def do_send_ticket_update(ticket: models.Ticket, update_type: str, **kwargs):
         mail.attach_alternative(html_email, 'text/html')
         mail.send()
 
-    mobile_numbers = []
-    other_numbers = []
-    for n in customer.get("attributes", {}).get("phone", []):
-        try:
-            n = phonenumbers.parse(n, settings.PHONENUMBER_DEFAULT_REGION)
-        except phonenumbers.phonenumberutil.NumberParseException:
-            continue
-        if phonenumbers.is_valid_number(n):
-            if phonenumbers.phonenumberutil.number_type(n) == phonenumbers.PhoneNumberType.MOBILE:
-                mobile_numbers.append(n)
-            else:
-                other_numbers.append(n)
-
-    if len(mobile_numbers):
-        for n in mobile_numbers:
-            r = requests.post("https://rest.nexmo.com/sms/json", data={
-                "from": "We Will Fix",
-                "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
-                "text": text_message,
-                "api_key": settings.NEXMO_KEY,
-                "api_secret": settings.NEXMO_SECRET
-            })
-    else:
-        for n in other_numbers:
-            requests.post("https://rest.nexmo.com/sms/json", data={
-                "from": "We Will Fix",
-                "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
-                "text": text_message,
-                "api_key": settings.NEXMO_KEY,
-                "api_secret": settings.NEXMO_SECRET
-            })
+    # mobile_numbers = []
+    # other_numbers = []
+    # for n in customer.get("attributes", {}).get("phone", []):
+    #     try:
+    #         n = phonenumbers.parse(n, settings.PHONENUMBER_DEFAULT_REGION)
+    #     except phonenumbers.phonenumberutil.NumberParseException:
+    #         continue
+    #     if phonenumbers.is_valid_number(n):
+    #         if phonenumbers.phonenumberutil.number_type(n) == phonenumbers.PhoneNumberType.MOBILE:
+    #             mobile_numbers.append(n)
+    #         else:
+    #             other_numbers.append(n)
+    #
+    # if len(mobile_numbers):
+    #     for n in mobile_numbers:
+    #         r = requests.post("https://rest.nexmo.com/sms/json", data={
+    #             "from": "We Will Fix",
+    #             "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
+    #             "text": text_message,
+    #             "api_key": settings.NEXMO_KEY,
+    #             "api_secret": settings.NEXMO_SECRET
+    #         })
+    # else:
+    #     for n in other_numbers:
+    #         requests.post("https://rest.nexmo.com/sms/json", data={
+    #             "from": "We Will Fix",
+    #             "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
+    #             "text": text_message,
+    #             "api_key": settings.NEXMO_KEY,
+    #             "api_secret": settings.NEXMO_SECRET
+    #         })
 
 
 @login_required
