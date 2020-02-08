@@ -66,7 +66,7 @@ LABEL_TEMPLATE = jinja2.Template("""
                 {{ customer.email }}
                 <br>
             {% endif %}
-            {% for phone in customer.get("attributes", {}).get("phone", []} %}
+            {% for phone in customer.get("attributes", {}).get("phone", []) %}
                 <b>Phone:</b>
                 {{ phone }}
                 <br>
