@@ -200,7 +200,7 @@ def edit_ticket(request, ticket_id):
                         data=json.dumps({
                             "type": "update",
                             "field_name": form.fields[e].label,
-                            "old_value": str(getattr(form.instance, e)),
+                            "old_value": str(getattr(ticket, e)),
                             "new_value": str(form.cleaned_data[e])
                         })
                     ).save()
