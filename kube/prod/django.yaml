@@ -32,9 +32,9 @@ metadata:
   name: django-conf
   namespace: cls-prod
 data:
-  HOST: 2.cardifftec.uk
+  HOST: cardifftec.uk
   DJANGO_SETTINGS_MODULE: wewillfixyourpc_cls.settings
-  EXTERNAL_URL: "https://2.cardifftec.uk"
+  EXTERNAL_URL: "https://cardifftec.uk"
   SENTRY_ENVIRONMENT: "prod"
   EMAIL_HOST: "mail.misell.cymru"
   UPDATES_EMAIL: "matt@wewillfixyourpc.co.uk"

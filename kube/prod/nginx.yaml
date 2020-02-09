@@ -123,10 +123,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - 2.cardifftec.uk
+        - cardifftec.uk
       secretName: cls-tls
   rules:
-  - host: 2.cardifftec.uk
+  - host: cardifftec.uk
     http:
       paths:
       - path: /

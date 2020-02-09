@@ -3,6 +3,7 @@ import typing
 import datetime
 import phonenumbers
 import django
+import logging
 import mysql.connector as mysql
 
 django.setup()
@@ -12,6 +13,8 @@ import tickets.models
 import customers.models
 import django_keycloak_auth.clients
 import django_keycloak_auth.users
+
+logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
 
 with open("secrets/mysql.json") as f:
     secrets = json.load(f)
@@ -38,23 +41,48 @@ agents = admin_client._client.get(
     )
 )
 
-equipment = ["Laptop", "Desktop", "Tablet", "Phone", "Other", "A.I.O", "Mac", "Multiple"]
-booked_by = ["Neil", "Matt", "Dan", None, None, None, None]
-assigned_to = [None, "Neil", "Matt", "Dan"]
+equipment = [None, "Laptop", "Desktop", "Tablet", "Phone", "Other", "A.I.O", "Mac", "Multiple"]
+booked_by = [None, "Neil", "Matt", "Dan", None, None, None, None]
+assigned_to = [None, "Neil", "Matt", "Dan", None, None, None, None, None, None]
 location = [None, "Self (L)", "Shelf (R)", "Bench", "Rebuild", "Completed", "Desktop", "With customer", "Part finding"]
 status = [None, "Booked in", "Assigned", "Awaiting parts", "Awaiting customer decision", "Completed", "Collected",
-          "Testing", None, None, "Looking for parts"]
-os = ["Windows XP", "Windows 7 Home Premium", "Windows 7 Pro", "Windows 8 Home", "Windows 8 Pro", "Windows 10 Home",
+          "Testing", "", "", "Looking for parts", ""]
+os = [None, "Windows XP", "Windows 7 Home Premium", "Windows 7 Pro", "Windows 8 Home", "Windows 8 Pro", "Windows 10 Home",
       "Windows 10 Pro", "macOS", "Linux", "N/A", "Windows 8.1 Home", "Windows 8.1 Pro", "Windows Vista",
       "OSX El Capitan"]
 
 cursor = db.cursor()
 
-cursor.execute("SELECT `ti_id`, `eq_id`, `bb_id`, `ast_id`, `loc_id`, `ts_id`, `ti_name`, `ti_phone_number`,"
-               "`ti_email`, `ti_date`, `ti_password`, `ti_details`, `ti_quote`, `ti_charger`, `ti_case`, `ti_other`,"
-               "`ti_workdone`, `ti_created`, `ti_updated`, `ti_to_do_by`, `ti_rebuild_current_os`,"
-               "`ti_rebuild_wanted_os`"
-               " FROM tickets WHERE `ts_id` != 6 ORDER BY `ti_id` DESC")
+user_cache = {}
+
+
+def get_users():
+    global user_cache
+
+    def get_user(user):
+        global user_cache
+        user = admin_client.users.by_id(user.get("id"))
+        user_cache[user.user.get("id")] = user.user
+        return user.user
+
+    users = []
+    first = 0
+    while True:
+        new_users = admin_client.users._client.get(
+            url=admin_client.users._client.get_full_url(
+                "/auth/admin/realms/{realm}/users?first={first}&max=100"
+                    .format(realm=admin_client.users._realm_name, first=first)
+            ),
+        )
+        users.extend(new_users)
+        if len(new_users) < 100:
+            break
+        first += 100
+
+    return list(map(
+        lambda u: user_cache[u.get("id")] if user_cache.get(u.get("id")) else get_user(u),
+        users
+    ))
 
 
 def map_ticket(ticket):
@@ -89,21 +117,35 @@ def map_ticket(ticket):
         "details": ticket[11],
         "work_done": ticket[16] if ticket[16] else None,
         "password": ticket[10],
-        "current_os": os[int(ticket[20])],
-        "wanted_os": os[int(ticket[20])],
+        "current_os": os[int(ticket[20]) if ticket[20] else 0],
+        "wanted_os": os[int(ticket[21]) if ticket[21] else 0],
     }
 
 
+cursor.execute("SELECT `ti_id`, `eq_id`, `bb_id`, `ast_id`, `loc_id`, `ts_id`, `ti_name`, `ti_phone_number`,"
+               "`ti_email`, `ti_date`, `ti_password`, `ti_details`, `ti_quote`, `ti_charger`, `ti_case`, `ti_other`,"
+               "`ti_workdone`, `ti_created`, `ti_updated`, `ti_to_do_by`, `ti_rebuild_current_os`,"
+               "`ti_rebuild_wanted_os`"
+               " FROM tickets WHERE `ts_id` != 6 ORDER BY `ti_id` DESC")
 ticket_objs = map(map_ticket, cursor.fetchall())
+cursor.execute("SELECT `ti_id`, `eq_id`, `bb_id`, `ast_id`, `loc_id`, `ts_id`, `ti_name`, `ti_phone_number`,"
+               "`ti_email`, `ti_date`, `ti_password`, `ti_details`, `ti_quote`, `ti_charger`, `ti_case`, `ti_other`,"
+               "`ti_workdone`, `ti_created`, `ti_updated`, `ti_to_do_by`, `ti_rebuild_current_os`,"
+               "`ti_rebuild_wanted_os`"
+               " FROM tickets ORDER BY `ti_id` DESC")
+ticket_objs_all = map(map_ticket, cursor.fetchall())
 
 
 def get_or_create_object(obj: typing.Type[tickets.models.models.Model], *args, **kwargs):
     try:
         return obj.objects.get(*args, **kwargs)
     except obj.DoesNotExist:
-        o = obj(*args, **kwargs)
-        o.save()
-        return o
+        try:
+            o = obj(*args, **kwargs)
+            o.save()
+            return o
+        except:
+            return None
 
 
 def get_create_agent(name):
@@ -134,31 +176,32 @@ def get_create_agent(name):
 
 
 def get_create_customer(customer):
-    users = django_keycloak_auth.users.get_users()
+    users = get_users()
+    print(customer)
 
     if customer["phone_number"]:
+        def check_phone(u):
+            return customer["phone_number"].strip() in u.get("attributes", {}).get("phone", [])
+
         user_by_phone = next(
-            filter(
-                lambda u: customer["phone_number"] in u.user.get("attributes", {}).get("phone", []),
-                users
-            ),
+            filter(check_phone, users),
             None
         )
         if user_by_phone:
-            django_keycloak_auth.users.link_roles_to_user(user_by_phone.user["id"], ["customer"])
-            return user_by_phone.user
+            django_keycloak_auth.users.link_roles_to_user(user_by_phone["id"], ["customer"])
+            return user_by_phone
 
     if customer["email"]:
+        def check_email(u):
+            return u.get("email", "").strip() == customer["email"].strip()
+
         user_by_email = next(
-            filter(
-                lambda u: u.user.get("email") == customer["email"],
-                users
-            ),
+            filter(check_email, users),
             None
         )
         if user_by_email:
-            django_keycloak_auth.users.link_roles_to_user(user_by_email.user["id"], ["customer"])
-            return user_by_email.user
+            django_keycloak_auth.users.link_roles_to_user(user_by_email["id"], ["customer"])
+            return user_by_email
 
     names = customer["name"].split(" ")
     first_name = " ".join(names[:-1])
@@ -166,20 +209,22 @@ def get_create_customer(customer):
 
     user_by_name = next(
         filter(
-            lambda u: u.user.get("firstName") == first_name and u.user.get("lastName") == last_name,
+            lambda u: u.get("firstName", "").strip() == first_name.strip() and
+                      u.get("lastName", "").strip() == last_name.strip(),
             users
         ),
         None
     )
     if user_by_name:
-        django_keycloak_auth.users.link_roles_to_user(user_by_name.user["id"], ["customer"])
-        return user_by_name.user
+        django_keycloak_auth.users.link_roles_to_user(user_by_name["id"], ["customer"])
+        return user_by_name
 
     user = django_keycloak_auth.users.get_or_create_user(
         email=customer["email"], first_name=first_name, last_name=last_name, phone=customer["phone_number"],
         required_actions=["UPDATE_PROFILE", "UPDATE_PASSWORD"]
     )
     django_keycloak_auth.users.link_roles_to_user(user["id"], ["customer"])
+    print(f"Created user: {first_name} {last_name}")
     return user
 
 
@@ -200,12 +245,16 @@ def create_secondary_objects(ticket):
     return ticket
 
 
+# for ticket in ticket_objs_all:
+#     get_create_customer(ticket["customer"])
+
 for ticket in map(create_secondary_objects, ticket_objs):
     if ticket["password"]:
         credential = customers.models.Credential(
             customer=ticket["customer"],
             name="Password",
-            password=ticket["password"]
+            password=ticket["password"],
+            username=""
         )
         credential.save()
 
