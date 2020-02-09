@@ -41,7 +41,8 @@ def search(request):
     customers = list(
         filter(
             lambda u: any((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
-                           q in u.get("email", "").lower().strip()) for q in query),
+                           q in u.get("email", "").lower().strip()) or
+                          any([q in p for p in u.get("attributes").get("phone", [])]) for q in query),
             map(
                 lambda u: u.user,
                 filter(
