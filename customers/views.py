@@ -142,7 +142,10 @@ def new_customer(request):
         phone_numbers = forms.CustomerPhoneFormSet(request.POST)
         phone_numbers.clean()
         if form.is_valid() and phone_numbers.is_valid():
-            user = django_keycloak_auth.users.get_or_create_user(**transform_customer_form(form, phone_numbers))
+            user = django_keycloak_auth.users.get_or_create_user(
+                required_actions=["UPDATE_PROFILE", "UPDATE_PASSWORD"],
+                **transform_customer_form(form, phone_numbers)
+            )
             models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
             django_keycloak_auth.users.link_roles_to_user(user.get("id"), ["customer"])
 
