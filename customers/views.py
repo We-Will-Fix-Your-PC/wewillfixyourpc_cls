@@ -8,6 +8,7 @@ from . import models
 import json
 import keycloak
 import urllib.parse
+import tickets.models
 
 
 @login_required
@@ -16,7 +17,7 @@ def view_customers(request):
     customers = sorted(
         list(
             map(
-                lambda u: u.user,
+                lambda u: tickets.models.get_user(u._user_id),
                 filter(
                     lambda u: next(filter(
                         lambda r: r.get('name') == 'customer', u.role_mappings.realm.get()
