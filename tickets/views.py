@@ -127,7 +127,7 @@ def search_customer(request):
             lambda u: any((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
                            q in u.get("email", "").lower().strip()) for q in query),
             map(
-                lambda u: u.user,
+                lambda u: models.get_user(u._user_id),
                 django_keycloak_auth.users.get_users()
             )
         )
