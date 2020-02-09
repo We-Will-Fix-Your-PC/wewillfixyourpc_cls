@@ -38,7 +38,7 @@ def view_tickets(request):
                 ticket.status = status
                 ticket.save()
 
-    tickets = models.Ticket.objects.filter(~Q(status__name="Completed"))
+    tickets = models.Ticket.objects.filter(~Q(status__name="Collected"))
     today_tickets = tickets.filter(to_do_by__gte=timezone.now().date()).order_by('-id')
     not_today_tickets = tickets.filter(
         Q(to_do_by__lt=timezone.now().date()) | Q(to_do_by__isnull=True)).order_by('-id')
