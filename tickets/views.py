@@ -65,9 +65,11 @@ def view_tickets(request):
         map(
             lambda u: {
                 "user": u,
-                "count": models.Ticket.objects.filter(Q(assigned_to=u.get('id')),
-                                                      ~Q(location__name="Completed")).count() +
-                         models.Job.objects.filter(assigned_to=u.get('id'), completed=False).count()
+                "count": models.Ticket.objects.filter(
+                    Q(assigned_to=u.get('id')),
+                    ~Q(location__name="Completed"),
+                    ~Q(status__name="Collected")
+                ).count() + models.Job.objects.filter(assigned_to=u.get('id'), completed=False).count()
             },
             filter(
                 lambda u: u.get('enabled', False),
