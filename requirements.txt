@@ -12,3 +12,4 @@ weasyprint
 jinja2
 python-escpos
 celery
+redis
