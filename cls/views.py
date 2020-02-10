@@ -37,7 +37,8 @@ def index(request):
 @permission_required('customers.view_customer', raise_exception=True)
 @permission_required('tickets.view_ticket', raise_exception=True)
 def search(request):
-    query = request.GET.get("q").strip().lower().split(" ")
+    query_2 = request.GET.get("q").strip()
+    query = query_2.lower().split(" ")
 
     c = list(
         filter(
@@ -64,8 +65,8 @@ def search(request):
     )
 
     ticket_filter = Q(customer__in=customer_ids)
-    if query.isnumeric():
-        ticket_filter |= Q(id=query)
+    if query_2.isnumeric():
+        ticket_filter |= Q(id=query_2)
     ticket_objs = tickets.models.Ticket.objects.filter(ticket_filter)
 
     return render(request, "cls/search.html", {
