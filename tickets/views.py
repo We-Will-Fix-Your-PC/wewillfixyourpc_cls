@@ -252,7 +252,7 @@ def send_ticket_update(request):
             raise Http404()
         ticket = get_object_or_404(models.Ticket, id=request.POST.get("ticket_id"))
         update_type = request.POST.get("update_type")
-        tasks.send_ticket_update.delay(ticket, update_type, update_text=request.POST.get("update_text"))
+        tasks.send_ticket_update.delay(ticket.id, update_type, update_text=request.POST.get("update_text"))
 
     return redirect(request.META.get("HTTP_REFERER"))
 

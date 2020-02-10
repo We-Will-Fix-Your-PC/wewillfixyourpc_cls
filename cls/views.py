@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.conf import settings
+import customers.tasks
 import tickets.models
 import tickets.views
 import json
@@ -38,13 +39,14 @@ def index(request):
 def search(request):
     query = request.GET.get("q").strip().lower().split(" ")
 
-    customers = list(
+    c = list(
         filter(
-            lambda u: any((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
+            lambda u: u and any(
+                ((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
                            q in u.get("email", "").lower().strip()) or
-                          any([q in p for p in u.get("attributes").get("phone", [])]) for q in query),
+                 any([q in p for p in u.get("attributes").get("phone", [])])) for q in query),
             map(
-                lambda u: u.user,
+                lambda u: customers.tasks.get_user(u._user_id),
                 filter(
                     lambda u: next(filter(
                         lambda r: r.get('name') == 'customer', u.role_mappings.realm.get()
@@ -57,7 +59,7 @@ def search(request):
     customer_ids = list(
         map(
             lambda u: u.get("id"),
-            customers
+            c
         )
     )
 
