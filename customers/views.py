@@ -5,6 +5,7 @@ import django_keycloak_auth.users
 import tickets.models
 from . import forms
 from . import models
+from . import tasks
 import json
 import keycloak
 import urllib.parse
@@ -17,7 +18,7 @@ def view_customers(request):
     customers = sorted(
         list(
             map(
-                lambda u: tickets.models.get_user(u._user_id),
+                lambda u: tasks.get_user(u._user_id),
                 filter(
                     lambda u: next(filter(
                         lambda r: r.get('name') == 'customer', u.role_mappings.realm.get()
