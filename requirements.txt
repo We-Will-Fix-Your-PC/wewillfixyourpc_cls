@@ -4,6 +4,8 @@ phonenumbers
 pyotp
 django-ckeditor
 sentry-sdk
+sentry-sdk[flask]
+flask
 brother_ql
 git+https://github.com/TheEnbyperor/django-keycloak-auth
 psycopg2-binary
