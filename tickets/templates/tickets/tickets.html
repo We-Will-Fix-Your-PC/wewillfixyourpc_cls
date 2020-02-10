@@ -75,7 +75,9 @@
     <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" type="application/javascript"></script>
     <script type="application/javascript">
         $(function () {
-           $('.ticket-table').DataTable()
+           $('.ticket-table').DataTable({
+               pageLength: 100
+           })
         });
     </script>
 {% endblock %}

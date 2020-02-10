@@ -41,10 +41,10 @@ def search(request):
 
     c = list(
         filter(
-            lambda u: u and any(
+            lambda u: any(
                 ((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
                            q in u.get("email", "").lower().strip()) or
-                 any([q in p for p in u.get("attributes").get("phone", [])])) for q in query),
+                 any([q in p for p in u.get("attributes", {}).get("phone", [])])) for q in query),
             map(
                 lambda u: customers.tasks.get_user(u._user_id),
                 filter(
