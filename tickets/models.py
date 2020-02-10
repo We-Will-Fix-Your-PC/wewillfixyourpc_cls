@@ -4,6 +4,7 @@ from django.core.validators import ValidationError
 import django_keycloak_auth.users
 import datetime
 import json
+import threading
 import customers.models
 from django.utils import timezone
 
@@ -36,18 +37,23 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
+def _get_user(user_id):
+    user = django_keycloak_auth.users.get_user_by_id(user_id).user
+    customers.models.CustomerCache(cust_id=user_id, data=json.dumps(user)).save()
+    return user
 
 def get_user(user_id):
     if not user_id:
         return None
-    expiry = timezone.now() - datetime.timedelta(minutes=10)
-    customer = customers.models.CustomerCache.objects.filter(cust_id=user_id, last_updated__gte=expiry) \
+    customer = customers.models.CustomerCache.objects.filter(cust_id=user_id) \
         .order_by('-last_updated').first()
     if customer:
+        if customer.last_updated < timezone.now() - datetime.timedelta(minutes=60):
+            t = threading.Thread(target=_get_user, args=(user_id,), daemon=True)
+            t.start()
         return json.loads(customer.data)
-    user = django_keycloak_auth.users.get_user_by_id(user_id).user
-    customers.models.CustomerCache(cust_id=user_id, data=json.dumps(user)).save()
-    return user
+    else:
+        return _get_user(user_id)
 
 
 class Ticket(models.Model):
