@@ -71,7 +71,7 @@ def search(request):
 
     return render(request, "cls/search.html", {
         "tickets": ticket_objs,
-        "customers": customers
+        "customers": c
     })
 
 
