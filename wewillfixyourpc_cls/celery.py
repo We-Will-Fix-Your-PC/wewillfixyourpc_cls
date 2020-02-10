@@ -12,7 +12,7 @@ from django.conf import settings
 if not settings.DEBUG:
     sentry_sdk.init(
         "https://518037d272e5426895df091967e1b949@sentry.io/1821508",
-        environment=settings.SENTRY_ENVIRONMENT,
+        environment=os.getenv("SENTRY_ENVIRONMENT", "dev"),
         integrations=[CeleryIntegration(), DjangoIntegration(), RedisIntegration()],
         release=os.getenv("RELEASE", None),
     )
