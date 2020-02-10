@@ -4,19 +4,16 @@ import copy
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.utils import timezone
-import threading
 import customers.tasks
 
 import django_keycloak_auth.clients
 import django_keycloak_auth.users
-from . import forms, models, print_label
+from . import forms, models, print_label, tasks
 
 
 @login_required
@@ -247,71 +244,6 @@ def print_ticket_receipt(request, ticket_id):
     return redirect(request.META.get("HTTP_REFERER"))
 
 
-def do_send_ticket_update(ticket: models.Ticket, update_type: str, **kwargs):
-    if update_type == "ready":
-        context = {
-            "content": "Your repair is complete and your device is ready to collect at your earliest convenience",
-            "ticket": ticket
-        }
-        html_email = render_to_string("emails/ticket_update.html", context)
-        plain_email = render_to_string("emails/ticket_update_plain.html", context)
-        text_message = f"Your We Will Fix Your PC repair (ticket #{ticket.id}) of a {ticket.equipment.name.lower()} " \
-                       f"is complete and your device is ready to collect at your earliest convenience"
-    elif update_type == "custom":
-        context = {
-            "content": kwargs.get("update_text", ""),
-            "ticket": ticket
-        }
-        html_email = render_to_string("emails/ticket_update.html", context)
-        plain_email = render_to_string("emails/ticket_update_plain.html", context)
-        text_message = f"An update on your We Will Fix Your PC (ticket #{ticket.id}) repair of a " \
-                       f"{ticket.equipment.name.lower()}: {kwargs.get('update_text', '')}"
-    else:
-        return HttpResponseBadRequest()
-
-    customer = ticket.get_customer()
-
-    if customer.get("email"):
-        mail = EmailMultiAlternatives(
-            'An update on your We Will Fix Your PC repair', plain_email,
-            'noreply@noreply.wewillfixyourpc.co.uk', [customer.get("email")]
-        )
-        mail.attach_alternative(html_email, 'text/html')
-        mail.send()
-
-    # mobile_numbers = []
-    # other_numbers = []
-    # for n in customer.get("attributes", {}).get("phone", []):
-    #     try:
-    #         n = phonenumbers.parse(n, settings.PHONENUMBER_DEFAULT_REGION)
-    #     except phonenumbers.phonenumberutil.NumberParseException:
-    #         continue
-    #     if phonenumbers.is_valid_number(n):
-    #         if phonenumbers.phonenumberutil.number_type(n) == phonenumbers.PhoneNumberType.MOBILE:
-    #             mobile_numbers.append(n)
-    #         else:
-    #             other_numbers.append(n)
-    #
-    # if len(mobile_numbers):
-    #     for n in mobile_numbers:
-    #         r = requests.post("https://rest.nexmo.com/sms/json", data={
-    #             "from": "We Will Fix",
-    #             "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
-    #             "text": text_message,
-    #             "api_key": settings.NEXMO_KEY,
-    #             "api_secret": settings.NEXMO_SECRET
-    #         })
-    # else:
-    #     for n in other_numbers:
-    #         requests.post("https://rest.nexmo.com/sms/json", data={
-    #             "from": "We Will Fix",
-    #             "to": phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)[1:],
-    #             "text": text_message,
-    #             "api_key": settings.NEXMO_KEY,
-    #             "api_secret": settings.NEXMO_SECRET
-    #         })
-
-
 @login_required
 @permission_required('tickets.change_ticket', raise_exception=True)
 def send_ticket_update(request):
@@ -320,7 +252,7 @@ def send_ticket_update(request):
             raise Http404()
         ticket = get_object_or_404(models.Ticket, id=request.POST.get("ticket_id"))
         update_type = request.POST.get("update_type")
-        do_send_ticket_update(ticket, update_type, update_text=request.POST.get("update_text"))
+        tasks.send_ticket_update.delay(ticket, update_type, update_text=request.POST.get("update_text"))
 
     return redirect(request.META.get("HTTP_REFERER"))
 
@@ -406,10 +338,10 @@ def slack_send_ticket_update(response_url, trigger_id, value):
 
 
 def slack_send_ticket_update2(response_url, trigger_id, metadata, values):
-    ticket = get_object_or_404(models.Ticket, id=metadata)
-    threading.Thread(target=do_send_ticket_update, args=(ticket, "custom"), kwargs={
-        "update_text": values.get("ticket_update_text", {}).get("ticket_update_text", {}).get("value", "")
-    }, daemon=True).start()
+    tasks.send_ticket_update.delay(
+        metadata, "custom",
+        update_text=values.get("ticket_update_text", {}).get("ticket_update_text", {}).get("value", "")
+    )
     return {}
 
 
@@ -513,7 +445,7 @@ def view_job(request, job_id):
 def view_jobs(request, user_id):
     jobs = models.Job.objects.filter(assigned_to=user_id, completed=False)
     tickets = models.Ticket.objects.filter(Q(assigned_to=user_id), ~Q(status__name="Collected"))
-    user = models.get_user(user_id)
+    user = customers.tasks.get_user(user_id)
     return render(request, "tickets/jobs.html", {
         "jobs": jobs,
         "tickets": tickets,
