@@ -6,6 +6,7 @@ import datetime
 import json
 import threading
 import customers.models
+import customers.tasks
 from django.utils import timezone
 
 
@@ -37,24 +38,6 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
-def _get_user(user_id):
-    user = django_keycloak_auth.users.get_user_by_id(user_id).user
-    customers.models.CustomerCache(cust_id=user_id, data=json.dumps(user)).save()
-    return user
-
-def get_user(user_id):
-    if not user_id:
-        return None
-    customer = customers.models.CustomerCache.objects.filter(cust_id=user_id) \
-        .order_by('-last_updated').first()
-    if customer:
-        if customer.last_updated < timezone.now() - datetime.timedelta(minutes=60):
-            t = threading.Thread(target=_get_user, args=(user_id,), daemon=True)
-            t.start()
-        return json.loads(customer.data)
-    else:
-        return _get_user(user_id)
-
 
 class Ticket(models.Model):
     customer = models.UUIDField()
@@ -81,13 +64,13 @@ class Ticket(models.Model):
         return f"#{self.id}"
 
     def get_customer(self):
-        return get_user(self.customer)
+        return customers.tasks.get_user(self.customer)
 
     def get_assigned_to(self):
-        return get_user(self.assigned_to)
+        return customers.tasks.get_user(self.assigned_to)
 
     def get_booked_by(self):
-        return get_user(self.booked_by)
+        return customers.tasks.get_user(self.booked_by)
 
     def clean(self):
         if self.location.os_required:
@@ -113,7 +96,7 @@ class TicketRevision(models.Model):
         ordering = ('-time',)
 
     def get_user(self):
-        return get_user(self.user)
+        return customers.tasks.get_user(self.user)
 
     def get_data(self):
         return json.loads(self.data)
@@ -139,4 +122,4 @@ class Job(models.Model):
         return f"#{self.id}"
 
     def get_assigned_to(self):
-        return get_user(self.assigned_to)
+        return customers.tasks.get_user(self.assigned_to)

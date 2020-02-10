@@ -36,6 +36,7 @@ data:
   DJANGO_SETTINGS_MODULE: wewillfixyourpc_cls.settings
   EXTERNAL_URL: "https://cardifftec.uk"
   SENTRY_ENVIRONMENT: "prod"
+  CELERY_RESULT_BACKEND: "redis://redis"
   EMAIL_HOST: "mail.misell.cymru"
   UPDATES_EMAIL: "matt@wewillfixyourpc.co.uk"
   KEYCLOAK_SERVER_URL: "https://account.cardifftec.uk/"
@@ -115,6 +116,9 @@ spec:
             - secretRef:
                 name: slack
               prefix: "SLACK_"
+            - secretRef:
+                name: rabbitmq-user
+              prefix: "CELERY_BROKER_"
       containers:
         - name: gunicorn
           image: theenbyperor/wwfypc-cls:(version)
@@ -153,7 +157,75 @@ spec:
             - secretRef:
                 name: slack
               prefix: "SLACK_"
+            - secretRef:
+                name: rabbitmq-user
+              prefix: "CELERY_BROKER_"
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery
+  namespace: cls-prod
+  labels:
+    app: celery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery
+  template:
+    metadata:
+      labels:
+        app: celery
+    spec:
+      volumes:
+        - name: static
+          persistentVolumeClaim:
+            claimName: django-static
+        - name: media
+          persistentVolumeClaim:
+            claimName: django-media
+      containers:
+        - name: celery
+          image: theenbyperor/wwfypc-cls:(version)
+          imagePullPolicy: Always
+          command: ["celery", "worker", "-A", "wewillfixyourpc_cls", "--loglevel=INFO", "-c", "32"]
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: "/app/static/"
+              name: static
+            - mountPath: "/app/media/"
+              name: media
+          envFrom:
+            - configMapRef:
+                name: django-conf
+            - configMapRef:
+                name: db-conf
+              prefix: "DB_"
+            - secretRef:
+                name: db-creds
+              prefix: "DB_"
+            - secretRef:
+                name: django-secret
+            - secretRef:
+                name: email-creds
+              prefix: "EMAIL_"
+            - secretRef:
+                name: keycloak
+              prefix: "KEYCLOAK_"
+            - secretRef:
+                name: firebase
+              prefix: "FIREBASE_"
+            - secretRef:
+                name: nexmo
+              prefix: "NEXMO_"
+            - secretRef:
+                name: slack
+              prefix: "SLACK_"
+            - secretRef:
+                name: rabbitmq-user
+              prefix: "CELERY_BROKER_"
 ---
 apiVersion: v1
 kind: Service
