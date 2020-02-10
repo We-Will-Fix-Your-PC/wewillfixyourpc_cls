@@ -1,7 +1,6 @@
 import json
 import urllib.parse
 import copy
-import phonenumbers
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
@@ -13,6 +12,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 import threading
+import customers.tasks
 
 import django_keycloak_auth.clients
 import django_keycloak_auth.users
@@ -122,17 +122,17 @@ def search_customer(request):
         return HttpResponseNotAllowed(permitted_methods=["POST"])
 
     query = request.POST.get("name").lower().strip().split(" ")
-    customers = list(
+    c = list(
         filter(
             lambda u: any((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
                            q in u.get("email", "").lower().strip()) for q in query),
             map(
-                lambda u: models.get_user(u._user_id),
+                lambda u: customers.tasks.get_user(u._user_id),
                 django_keycloak_auth.users.get_users()
             )
         )
     )
-    return HttpResponse(json.dumps(customers))
+    return HttpResponse(json.dumps(c))
 
 
 @login_required
