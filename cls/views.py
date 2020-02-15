@@ -26,6 +26,7 @@ def index(request):
     is_customer = True if role else False
 
     repairs = tickets.models.Ticket.objects.filter(customer=request.user.username)
+    print(user.user)
 
     return render(request, "cls/index.html", {
         "is_customer": is_customer,

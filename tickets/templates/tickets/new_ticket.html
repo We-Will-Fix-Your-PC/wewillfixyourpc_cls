@@ -10,8 +10,15 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="name">Customers name</label>
-                        <input type="text" class="form-control rounded-bottom-0" id="name" name="name"
-                               autocomplete="off">
+                        <div class="input-group">
+                            <input type="text" class="form-control rounded-bottom-0" id="name" name="name"
+                                   autocomplete="off">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="customer-search">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
                         <div id="autofill">
                         </div>
                     </div>
@@ -23,11 +30,11 @@
                 <h2>Recently completed self check-ins</h2>
                 <table class="table">
                     <thead>
-                        <tr>
-                            <th>First name</th>
-                            <th>Last name</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody id="checkins"></tbody>
                 </table>
@@ -69,8 +76,8 @@
             }
         });
 
-        $("#name").on("keyup", function (e) {
-            const val = e.currentTarget.value;
+        $("#customer-search").on("click", function () {
+            const val = $("#name").val();
             if (val.length) {
                 $.post({
                     url: "{% url 'tickets:search_customer' %}",
@@ -128,6 +135,7 @@
                 $("#checkins").html(out);
             });
         }
+
         setInterval(update, 5000);
         update();
     </script>
