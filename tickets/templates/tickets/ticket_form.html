@@ -80,6 +80,18 @@
                     </div>
                     <div class="row">
                         <div class="col">
+                            <div class="form-group">
+                                {{ form.whats_it_doing.errors }}
+                                {{ form.whats_it_doing.label_tag }}
+                                <br>
+                                <em>Only enter what it is doing upon arrival!</em>
+                                <br>
+                                {{ form.whats_it_doing }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
                             <h4>Images</h4>
                             {{ images.management_form }}
                             {% for error in images.errors %}
@@ -106,18 +118,6 @@
                                 <div class="col">
                                     <button class="btn btn-success" id="add_image" type="button">Add</button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                {{ form.whats_it_doing.errors }}
-                                {{ form.whats_it_doing.label_tag }}
-                                <br>
-                                <em>Only enter what it is doing upon arrival!</em>
-                                <br>
-                                {{ form.whats_it_doing }}
                             </div>
                         </div>
                     </div>
