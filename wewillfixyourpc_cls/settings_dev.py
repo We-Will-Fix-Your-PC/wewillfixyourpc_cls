@@ -84,6 +84,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cls.context_processors.facebook_processor',
+                'cls.context_processors.keycloak_processor',
             ],
         },
     },
@@ -158,6 +160,8 @@ with open(os.path.join(BASE_DIR, "secrets/nexmo.json")) as f:
     nexmo_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/slack.json")) as f:
     slack_conf = json.load(f)
+with open(os.path.join(BASE_DIR, "secrets/facebook.json")) as f:
+    facebook_conf = json.load(f)
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 UPDATES_EMAIL = "test@example.com"
@@ -169,6 +173,11 @@ OIDC_CLIENT_SECRET = keycloak_conf["client_secret"]
 OIDC_SCOPES = keycloak_conf["scopes"]
 
 FIREBASE_URL_API_KEY = google_conf["short_links"]
+
+FACEBOOK_PAGE_ID = facebook_conf["page_id"]
+FACEBOOK_APP_ID = facebook_conf["app_id"]
+FACEBOOK_PAGE_ACCESS_TOKEN = facebook_conf["page_access_token"]
+FACEBOOK_APP_ACCESS_TOKEN = facebook_conf["app_access_token"]
 
 NEXMO_KEY = nexmo_conf["key"]
 NEXMO_SECRET = nexmo_conf["secret"]

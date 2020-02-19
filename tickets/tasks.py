@@ -35,8 +35,9 @@ def send_ticket_update(tid: int, update_type: str, **kwargs):
     if customer.get("email"):
         mail = EmailMultiAlternatives(
             'An update on your We Will Fix Your PC repair', plain_email,
-            'noreply@noreply.wewillfixyourpc.co.uk', [customer.get("email")]
+            'We Will Fix Your PC <noreply@noreply.wewillfixyourpc.co.uk>', [customer.get("email")]
         )
+        mail.reply_to = "We Will Fix Your PC <neil@wewillfixyourpc.co.uk>"
         mail.attach_alternative(html_email, 'text/html')
         mail.send()
 

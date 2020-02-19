@@ -87,17 +87,17 @@
         modal.find('input[name="ticket_id"]').val(ticket_id)
     })
 </script>
-{#<script>#}
-{#  window.fbAsyncInit = function() {#}
-{#    FB.init({#}
-{#      appId            : '1137274303141038',#}
-{#      autoLogAppEvents : true,#}
-{#      xfbml            : true,#}
-{#      version          : 'v6.0'#}
-{#    });#}
-{#  };#}
-{#</script>#}
-{#<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>#}
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId            : "{{ facebook_app_id }}",
+      autoLogAppEvents : true,
+      xfbml            : true,
+      version          : 'v6.0'
+    });
+  };
+</script>
+<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
 {% block scripts %}
 {% endblock %}
 </body>
