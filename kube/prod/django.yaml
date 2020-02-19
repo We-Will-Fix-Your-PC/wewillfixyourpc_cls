@@ -44,6 +44,8 @@ data:
   KEYCLOAK_SCOPES: "openid email profile"
   KEYCLOAK_CLIENT_ID: "cls"
   LABEL_PRINTER: "10.5.0.1"
+  FACEBOOK_PAGE_ID: "113981020001041"
+  FACEBOOK_APP_ID: "2256639921040568"
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -119,6 +121,9 @@ spec:
             - secretRef:
                 name: rabbitmq-user
               prefix: "CELERY_BROKER_"
+            - secretRef:
+                name: facebook
+              prefix: "FACEBOOK_"
       containers:
         - name: gunicorn
           image: theenbyperor/wwfypc-cls:(version)
@@ -160,6 +165,9 @@ spec:
             - secretRef:
                 name: rabbitmq-user
               prefix: "CELERY_BROKER_"
+            - secretRef:
+                name: facebook
+              prefix: "FACEBOOK_"
 ---
 apiVersion: apps/v1
 kind: Deployment

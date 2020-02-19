@@ -176,11 +176,7 @@ FIREBASE_URL_API_KEY = google_conf["short_links"]
 
 FACEBOOK_PAGE_ID = facebook_conf["page_id"]
 FACEBOOK_APP_ID = facebook_conf["app_id"]
-FACEBOOK_PAGE_ACCESS_TOKEN = facebook_conf["page_access_token"]
-FACEBOOK_APP_ACCESS_TOKEN = facebook_conf["app_access_token"]
-
-NEXMO_KEY = nexmo_conf["key"]
-NEXMO_SECRET = nexmo_conf["secret"]
+FACEBOOK_OPTIN_SECRET = facebook_conf["optin_secret"]
 
 SLACK_URL = slack_conf["webhook"]
 SLACK_INTERACTIVITY_TOKEN = slack_conf["interactivity_token"]

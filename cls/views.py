@@ -12,6 +12,8 @@ import tickets.views
 import json
 import time
 import hmac
+import jwt
+import datetime
 
 
 @login_required
@@ -28,35 +30,11 @@ def index(request):
     email = user.user.get("email")
     phones = user.user.get("attributes", {}).get("phone", [])
 
-    def get_federated_id(provider):
-        return next(
-            filter(
-                lambda i: i.get("identityProvider") == provider,
-                user.user.get("federatedIdentities", [])
-            ),
-            {}
-        ).get("userId")
-
-    facebook_id = get_federated_id("facebook")
-    has_facebook = False
-
-    if facebook_id:
-        r = requests.get(
-            f"https://graph.facebook.com/v5.0/{facebook_id}/ids_for_pages",
-            params={
-                "access_token": settings.FACEBOOK_APP_ACCESS_TOKEN
-            }
-        )
-        if r.status_code == 200:
-            data = r.json().get("data", [])
-            psid = next(
-                filter(
-                    lambda p: p.get("page", {}).get("id") == settings.FACEBOOK_PAGE_ID,
-                    data
-                ),
-                {}
-            ).get("id")
-            has_facebook = psid is not None
+    customer_id_jwt = jwt.encode({
+        'cust_id': user.user.get("id"),
+        'iat': datetime.datetime.utcnow(),
+        'nbf': datetime.datetime.utcnow()
+    }, settings.FACEBOOK_OPTIN_SECRET, algorithm='HS256').decode()
 
     repairs = tickets.models.Ticket.objects.filter(customer=request.user.username)
 
@@ -66,7 +44,7 @@ def index(request):
         "customer": {
             "email": email,
             "phones": phones,
-            "facebook": has_facebook
+            "ref": customer_id_jwt
         }
     })
 

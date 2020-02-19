@@ -21,35 +21,34 @@
         {% if is_customer %}
             <div class="row">
                 <h2 class="w-100">How we can contact you</h2>
-                <a href="https://account.cardifftec.uk/auth/realms/{{ keycloak_realm }}/account/" class="btn btn-primary">
+                <a href="https://account.cardifftec.uk/auth/realms/{{ keycloak_realm }}/account/"
+                   class="btn btn-primary">
                     Edit
                 </a>
                 <table class="table mt-3">
                     <tbody>
-                        <tr>
-                            <th>Email</th>
-                            <td>{% if customer.email %}{{ customer.email }}{% else %}No email on file{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <th>Phone</th>
-                            <td>{% if customer.phones %}{{ customer.phones|join:', ' }}{% else %}No phone numbers on file{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <th>Facebook messenger</th>
-                            <td>
-                                {% if customer.facebook %}
-                                    Enabled
-                                {% else %}
-                                    <div class="fb-send-to-messenger"
-                                      messenger_app_id="{{ facebook_app_id }}"
-                                      page_id="{{ facebook_page_id }}"
-                                         cta_text="KEEP_ME_UPDATED"
-                                      color="blue"
-                                      size="large">
-                                    </div>
-                                {% endif %}
-                            </td>
-                        </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>{% if customer.email %}{{ customer.email }}{% else %}No email on file{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Phone</th>
+                        <td>{% if customer.phones %}{{ customer.phones|join:', ' }}{% else %}No phone numbers on
+                            file{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Facebook messenger</th>
+                        <td>
+                            <div class="fb-send-to-messenger"
+                                 messenger_app_id="{{ facebook_app_id }}"
+                                 page_id="{{ facebook_page_id }}"
+                                 cta_text="KEEP_ME_UPDATED"
+                                 data-ref="{{ customer.ref }}"
+                                 color="blue"
+                                 size="xlarge">
+                            </div>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -79,7 +78,8 @@
                                     <td>{{ repair.equipment.name }}</td>
                                     <td>{{ repair.get_booked_by.firstName }}</td>
                                     <td>
-                                        <a href="{% url 'tickets:request_update' repair.id %}" class="btn btn-success">Request update</a>
+                                        <a href="{% url 'tickets:request_update' repair.id %}" class="btn btn-success">Request
+                                            update</a>
                                     </td>
                                 </tr>
                             {% endfor %}
