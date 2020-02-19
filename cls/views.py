@@ -12,6 +12,7 @@ import tickets.views
 import json
 import time
 import hmac
+import jwt
 
 
 @login_required
@@ -36,6 +37,8 @@ def index(request):
             ),
             {}
         ).get("userId")
+
+    customer_id_jwt = jwt.encode({'cust_id': user.id}, settings.FACEBOOK_OPTIN_SECRET, algorithm='HS256')
 
     facebook_id = get_federated_id("facebook")
     has_facebook = False
@@ -66,7 +69,8 @@ def index(request):
         "customer": {
             "email": email,
             "phones": phones,
-            "facebook": has_facebook
+            "facebook": has_facebook,
+            "ref": customer_id_jwt
         }
     })
 

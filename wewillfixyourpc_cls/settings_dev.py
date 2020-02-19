@@ -178,6 +178,7 @@ FACEBOOK_PAGE_ID = facebook_conf["page_id"]
 FACEBOOK_APP_ID = facebook_conf["app_id"]
 FACEBOOK_PAGE_ACCESS_TOKEN = facebook_conf["page_access_token"]
 FACEBOOK_APP_ACCESS_TOKEN = facebook_conf["app_access_token"]
+FACEBOOK_OPTIN_SECRET = facebook_conf["optin_secret"]
 
 NEXMO_KEY = nexmo_conf["key"]
 NEXMO_SECRET = nexmo_conf["secret"]
