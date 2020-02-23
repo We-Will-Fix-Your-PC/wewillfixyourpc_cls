@@ -7,16 +7,12 @@ from django.http import HttpResponse
 from django.conf import settings
 import customers.tasks
 import tickets.models
-import requests
 import tickets.views
 import json
 import time
 import hmac
 import jwt
-<<<<<<< HEAD
 import datetime
-=======
->>>>>>> cd034b886a6928c1cd6e4d569fadaebf1990d2f1
 
 
 @login_required
