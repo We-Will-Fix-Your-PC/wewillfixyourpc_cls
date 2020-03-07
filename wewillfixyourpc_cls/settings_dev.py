@@ -156,8 +156,8 @@ with open(os.path.join(BASE_DIR, "secrets/keycloak.json")) as f:
     keycloak_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/google.json")) as f:
     google_conf = json.load(f)
-with open(os.path.join(BASE_DIR, "secrets/nexmo.json")) as f:
-    nexmo_conf = json.load(f)
+with open(os.path.join(BASE_DIR, "secrets/txtlocal.json")) as f:
+    txtlocal_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/slack.json")) as f:
     slack_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/facebook.json")) as f:
@@ -173,6 +173,8 @@ OIDC_CLIENT_SECRET = keycloak_conf["client_secret"]
 OIDC_SCOPES = keycloak_conf["scopes"]
 
 FIREBASE_URL_API_KEY = google_conf["short_links"]
+
+TXTLOCAL_API_KEY = txtlocal_conf["key"]
 
 FACEBOOK_PAGE_ID = facebook_conf["page_id"]
 FACEBOOK_APP_ID = facebook_conf["app_id"]

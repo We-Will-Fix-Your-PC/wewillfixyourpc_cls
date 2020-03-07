@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 import django_keycloak_auth.users
 import tickets.models
@@ -8,8 +9,10 @@ from . import models
 from . import tasks
 import json
 import keycloak
+import requests
 import urllib.parse
 import tickets.models
+import secrets
 
 
 @login_required
@@ -150,6 +153,30 @@ def new_customer(request):
             )
             models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
             django_keycloak_auth.users.link_roles_to_user(user.get("id"), ["customer"])
+
+            numbers = list(
+                map(
+                    lambda p: p["phone_number"].as_e164[1:],
+                    filter(
+                        lambda p: p.get("phone_number"),
+                        phone_numbers.cleaned_data
+                    )
+                )
+            )
+
+            if len(numbers):
+                password = secrets.token_hex(4)
+                django_keycloak_auth.users.get_user_by_id(user.get("id")).reset_password(password, temporary=True)
+                r = requests.post("https://api.txtlocal.com/send/", data={
+                    "sender": "WWFYPC",
+                    "apiKey": settings.TXTLOCAL_API_KEY,
+                    "numbers": ",".join(numbers),
+                    "message": f"Welcome to your We Will Fix Your PC account. Your username is "
+                               f"{user.get('username')}, and your temporary password is "
+                               f"{password}. Login to see your repairs at https://wwfypc.xyz/cls",
+                    "test": True
+                })
+                print(r.text)
 
             if not request.GET.get("next"):
                 return redirect("customers:view_customers")
