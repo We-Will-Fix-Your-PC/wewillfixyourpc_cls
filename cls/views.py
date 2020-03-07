@@ -3,6 +3,7 @@ from django.db.models import Q
 import django_keycloak_auth.users
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 from django.http import HttpResponse
 from django.conf import settings
 import customers.tasks
@@ -35,7 +36,7 @@ def index(request):
         'nbf': datetime.datetime.utcnow()
     }, settings.FACEBOOK_OPTIN_SECRET, algorithm='HS256').decode()
 
-    repairs = tickets.models.Ticket.objects.filter(customer=request.user.username)
+    repairs = tickets.models.Ticket.objects.filter(Q(customer=request.user.username), ~Q(status__name="Collected"))
 
     return render(request, "cls/index.html", {
         "is_customer": is_customer,

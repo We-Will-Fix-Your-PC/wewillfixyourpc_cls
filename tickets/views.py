@@ -253,7 +253,7 @@ def send_ticket_update(request):
         update_type = request.POST.get("update_type")
         tasks.send_ticket_update.delay(ticket.id, update_type, update_text=request.POST.get("update_text"))
 
-    return redirect(request.META.get("HTTP_REFERER"))
+    return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @login_required
