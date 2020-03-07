@@ -155,7 +155,13 @@
                     {% for revision in form.instance.revisions.all %}
                         <tr>
                             <th>{{ revision.time }}</th>
-                            <td>{{ revision.get_user.firstName }} {{ revision.get_user.lastName }}</td>
+                            <td>
+                                {% if revision.user %}
+                                {{ revision.get_user.firstName }} {{ revision.get_user.lastName }}
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </td>
                             <td>
                                 {% with data=revision.get_data %}
                                     {% if data.type == "create" %}
@@ -165,6 +171,12 @@
                                         <div>{{ data.old_value|safe }}</div>
                                         to:
                                         <div>{{ data.new_value|safe }}</div>
+                                    {% elif data.type == "message" %}
+                                        {% if data.msg_type == "ready" %}
+                                            Ready to collect update sent
+                                        {% elif data.msg_type == "custom" %}
+                                            Custom update with text "{{ data.kwargs.update_text }}" sent
+                                        {% endif %}
                                     {% endif %}
                                 {% endwith %}
                             </td>

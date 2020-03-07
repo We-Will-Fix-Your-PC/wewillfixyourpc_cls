@@ -4,12 +4,24 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 import django_keycloak_auth.clients
 import requests
+import json
 from . import models
 
 
 @shared_task
 def send_ticket_update(tid: int, update_type: str, **kwargs):
     ticket = models.Ticket.objects.get(id=tid)
+
+    models.TicketRevision(
+        ticket=ticket,
+        user=None,
+        data=json.dumps({
+            "type": "message",
+            "msg_type": update_type,
+            "kwargs": kwargs
+        })
+    ).save()
+
     if update_type == "ready":
         context = {
             "content": "Your repair is complete and your device is ready to collect at your earliest convenience",

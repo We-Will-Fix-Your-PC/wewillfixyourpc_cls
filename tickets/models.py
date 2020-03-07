@@ -88,7 +88,7 @@ class Ticket(models.Model):
 
 class TicketRevision(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='revisions')
-    user = models.UUIDField()
+    user = models.UUIDField(blank=True, null=True)
     time = models.DateTimeField(auto_now_add=True)
     data = models.TextField()
 
