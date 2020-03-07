@@ -7,12 +7,15 @@ import tickets.models
 from . import forms
 from . import models
 from . import tasks
+import twilio.rest
 import json
-import keycloak
-import requests
+import keycloak.exceptions
 import urllib.parse
 import tickets.models
 import secrets
+
+
+twilio_client = twilio.rest.Client(settings.TWILIO_ACCOUNT, settings.TWILIO_TOKEN)
 
 
 @login_required
@@ -156,7 +159,7 @@ def new_customer(request):
 
             numbers = list(
                 map(
-                    lambda p: p["phone_number"].as_e164[1:],
+                    lambda p: p["phone_number"].as_e164,
                     filter(
                         lambda p: p.get("phone_number"),
                         phone_numbers.cleaned_data
@@ -164,19 +167,26 @@ def new_customer(request):
                 )
             )
 
-            if len(numbers):
+            if form.cleaned_data["email"] and len(numbers):
+                for num in numbers:
+                    twilio_client.messages.create(
+                        to=num,
+                        messaging_service_sid=settings.TWILIO_MSID,
+                        body=f"Welcome to your We Will Fix Your PC account. Your username is "
+                        f"{user.get('username')}, and details to setup your account have been"
+                        f"emailed to you. Login to see your repairs at https://wwfypc.xyz/cls",
+                    )
+            elif len(numbers):
                 password = secrets.token_hex(4)
                 django_keycloak_auth.users.get_user_by_id(user.get("id")).reset_password(password, temporary=True)
-                r = requests.post("https://api.txtlocal.com/send/", data={
-                    "sender": "WWFYPC",
-                    "apiKey": settings.TXTLOCAL_API_KEY,
-                    "numbers": ",".join(numbers),
-                    "message": f"Welcome to your We Will Fix Your PC account. Your username is "
-                               f"{user.get('username')}, and your temporary password is "
-                               f"{password}. Login to see your repairs at https://wwfypc.xyz/cls",
-                    "test": True
-                })
-                print(r.text)
+                for num in numbers:
+                    twilio_client.messages.create(
+                        to=num,
+                        messaging_service_sid=settings.TWILIO_MSID,
+                        body=f"Welcome to your We Will Fix Your PC account. Your username is "
+                        f"{user.get('username')}, and your temporary password is "
+                        f"{password}. Login to see your repairs at https://wwfypc.xyz/cls",
+                    )
 
             if not request.GET.get("next"):
                 return redirect("customers:view_customers")

@@ -156,8 +156,8 @@ with open(os.path.join(BASE_DIR, "secrets/keycloak.json")) as f:
     keycloak_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/google.json")) as f:
     google_conf = json.load(f)
-with open(os.path.join(BASE_DIR, "secrets/txtlocal.json")) as f:
-    txtlocal_conf = json.load(f)
+with open(os.path.join(BASE_DIR, "secrets/twilio.json")) as f:
+    twilio_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/slack.json")) as f:
     slack_conf = json.load(f)
 with open(os.path.join(BASE_DIR, "secrets/facebook.json")) as f:
@@ -165,6 +165,8 @@ with open(os.path.join(BASE_DIR, "secrets/facebook.json")) as f:
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 UPDATES_EMAIL = "test@example.com"
+
+CUSTOMER_SUPPORT_URL = "https://wewillfixyourpc-bot.eu.ngrok.io/"
 
 KEYCLOAK_SERVER_URL = keycloak_conf["server_url"]
 KEYCLOAK_REALM = keycloak_conf["realm"]
@@ -174,11 +176,13 @@ OIDC_SCOPES = keycloak_conf["scopes"]
 
 FIREBASE_URL_API_KEY = google_conf["short_links"]
 
-TXTLOCAL_API_KEY = txtlocal_conf["key"]
-
 FACEBOOK_PAGE_ID = facebook_conf["page_id"]
 FACEBOOK_APP_ID = facebook_conf["app_id"]
 FACEBOOK_OPTIN_SECRET = facebook_conf["optin_secret"]
+
+TWILIO_ACCOUNT = twilio_conf["account"]
+TWILIO_TOKEN = twilio_conf["token"]
+TWILIO_MSID = twilio_conf["msid"]
 
 SLACK_URL = slack_conf["webhook"]
 SLACK_INTERACTIVITY_TOKEN = slack_conf["interactivity_token"]

@@ -173,6 +173,12 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", False)
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", False)
 
+CUSTOMER_SUPPORT_URL = os.getenv("CUSTOMER_SUPPORT_URL", "https://bot.cardifftec.uk/")
+
+TWILIO_ACCOUNT = os.getenv("TWILIO_ACCOUNT_ID")
+TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
+TWILIO_MSID = os.getenv("TWILIO_MSID")
+
 UPDATES_EMAIL = os.getenv("UPDATES_EMAIL", "")
 
 KEYCLOAK_SERVER_URL = os.getenv("KEYCLOAK_SERVER_URL")

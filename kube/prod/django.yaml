@@ -39,6 +39,7 @@ data:
   CELERY_RESULT_BACKEND: "redis://redis"
   EMAIL_HOST: "mail.misell.cymru"
   UPDATES_EMAIL: "matt@wewillfixyourpc.co.uk"
+  CUSTOMER_SUPPORT_URL: "https://bot.cardifftec.uk/"
   KEYCLOAK_SERVER_URL: "https://account.cardifftec.uk/"
   KEYCLOAK_REALM: wwfypc
   KEYCLOAK_SCOPES: "openid email profile"
@@ -124,6 +125,9 @@ spec:
             - secretRef:
                 name: facebook
               prefix: "FACEBOOK_"
+            - secretRef:
+                name: twilio
+              prefix: "TWILIO_"
       containers:
         - name: gunicorn
           image: theenbyperor/wwfypc-cls:(version)
@@ -168,6 +172,9 @@ spec:
             - secretRef:
                 name: facebook
               prefix: "FACEBOOK_"
+            - secretRef:
+                name: twilio
+              prefix: "TWILIO_"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -234,6 +241,12 @@ spec:
             - secretRef:
                 name: rabbitmq-user
               prefix: "CELERY_BROKER_"
+            - secretRef:
+                name: facebook
+              prefix: "FACEBOOK_"
+            - secretRef:
+                name: twilio
+              prefix: "TWILIO_"
 ---
 apiVersion: v1
 kind: Service
