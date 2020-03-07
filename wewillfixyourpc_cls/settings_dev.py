@@ -167,6 +167,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 UPDATES_EMAIL = "test@example.com"
 
 CUSTOMER_SUPPORT_URL = "https://wewillfixyourpc-bot.eu.ngrok.io/"
+VSMS_URL = "https://localhost:3000/"
 
 KEYCLOAK_SERVER_URL = keycloak_conf["server_url"]
 KEYCLOAK_REALM = keycloak_conf["realm"]

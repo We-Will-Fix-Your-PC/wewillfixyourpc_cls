@@ -40,6 +40,7 @@ data:
   EMAIL_HOST: "mail.misell.cymru"
   UPDATES_EMAIL: "matt@wewillfixyourpc.co.uk"
   CUSTOMER_SUPPORT_URL: "https://bot.cardifftec.uk/"
+  VSMS_URL: "http://vsms.vsms:3000/"
   KEYCLOAK_SERVER_URL: "https://account.cardifftec.uk/"
   KEYCLOAK_REALM: wwfypc
   KEYCLOAK_SCOPES: "openid email profile"

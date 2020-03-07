@@ -3,12 +3,14 @@ from django.http import Http404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 import django_keycloak_auth.users
+import django_keycloak_auth.clients
 import tickets.models
 from . import forms
 from . import models
 from . import tasks
 import twilio.rest
 import json
+import requests
 import keycloak.exceptions
 import urllib.parse
 import tickets.models
@@ -167,12 +169,24 @@ def new_customer(request):
                 )
             )
 
+            def send_message(num, body):
+                requests.post(f"{settings.VSMS_URL}message/new/",  headers={
+                    "Authorization": f"Bearer {django_keycloak_auth.clients.get_access_token()}"
+                }, json={
+                    "to": num,
+                    "contents": body
+                })
+                twilio_client.messages.create(
+                    to=num,
+                    messaging_service_sid=settings.TWILIO_MSID,
+                    body=body
+                )
+
             if form.cleaned_data["email"] and len(numbers):
                 for num in numbers:
-                    twilio_client.messages.create(
-                        to=num,
-                        messaging_service_sid=settings.TWILIO_MSID,
-                        body=f"Welcome to your We Will Fix Your PC account. Your username is "
+                    send_message(
+                        num,
+                        f"Welcome to your We Will Fix Your PC account. Your username is "
                         f"{user.get('username')}, and details to setup your account have been"
                         f"emailed to you. Login to see your repairs at https://wwfypc.xyz/cls",
                     )
@@ -180,10 +194,9 @@ def new_customer(request):
                 password = secrets.token_hex(4)
                 django_keycloak_auth.users.get_user_by_id(user.get("id")).reset_password(password, temporary=True)
                 for num in numbers:
-                    twilio_client.messages.create(
-                        to=num,
-                        messaging_service_sid=settings.TWILIO_MSID,
-                        body=f"Welcome to your We Will Fix Your PC account. Your username is "
+                    send_message(
+                        num,
+                        f"Welcome to your We Will Fix Your PC account. Your username is "
                         f"{user.get('username')}, and your temporary password is "
                         f"{password}. Login to see your repairs at https://wwfypc.xyz/cls",
                     )

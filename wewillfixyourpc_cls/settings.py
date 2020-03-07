@@ -174,6 +174,7 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", False)
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", False)
 
 CUSTOMER_SUPPORT_URL = os.getenv("CUSTOMER_SUPPORT_URL", "https://bot.cardifftec.uk/")
+VSMS_URL = os.getenv("VSMS_URL", "http://vsms/")
 
 TWILIO_ACCOUNT = os.getenv("TWILIO_ACCOUNT_ID")
 TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
