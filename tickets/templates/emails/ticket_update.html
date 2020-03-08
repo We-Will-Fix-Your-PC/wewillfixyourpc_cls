@@ -1,31 +1,39 @@
-<style type="text/css" style="font-weight: 300">
-  @import url(https://fonts.googleapis.com/css?family=Lato:400,700);
-</style>
+<html lang="en">
+<head>
+    <style type="text/css" style="font-weight: 300">
+        @import url(https://fonts.googleapis.com/css?family=Lato:400,700);
+    </style>
+</head>
+<body style="padding: 0;margin: 0">
 <div style="background-image: url('https://wewillfixyourpc.co.uk/retro-apple-tile.png'); background-position: 50% 50%; font-family: Lato, 'Helvetica Neue', helvetica, sans-serif;">
-    <div style="padding: 40px;">
-    <table style="margin: 0 auto; border-radius: 5px; background: #fff; max-width: 600px; width:100%; border: 1px solid #c7d0d4; border-spacing: 0;">
-        <tr>
-            <td style="border-bottom: 1px solid #dee7eb; text-align: center;">
-                <img src="https://wewillfixyourpc.co.uk/wwfypc-logo-wd.png" height="150px" alt="We Will Fix Your PC" />
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 20px;">
-                <h1>An update on your repair</h1>
-                <h2>Ticket #{{ ticket.id }}</h2>
-                <b>Equipment:</b> {{ ticket.equipment.name }}<br/>
-                <hr/>
-                {{ content|safe }}
-            </td>
-        </tr>
-        <tr>
-            <td style="border-top: 1px solid #dee7eb;padding: 20px;text-align: center;">
-                <h4>Questions? We can help.</h4>
-                <a href="https://bcrw.apple.com/urn:biz:959b0d05-a091-4bd7-96cb-7a2fbe53174d"><img src="https://wewillfixyourpc.co.uk/BusinessChatButton_chat.svg"></a>
-                <a href="tel://+442920766039"><img src="https://wewillfixyourpc.co.uk/BusinessChatButton_call.svg"></a>
-                <p>Chat with one of our pros to get the help you need</p>
-            </td>
-        </tr>
-    </table>
+    <div style="padding: 40px 20px;">
+        <table style="margin: 0 auto; border-radius: 5px; background: #fff; max-width: 600px; width:100%; border: 1px solid #c7d0d4; border-spacing: 0;">
+            <tr>
+                <td style="border-bottom: 1px solid #dee7eb; text-align: center;">
+                    <img src="https://wewillfixyourpc.co.uk/wwfypc-logo-wd.png" height="150px"
+                         alt="We Will Fix Your PC"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 20px;">
+                    <h1>An update on your repair</h1>
+                    <h2>Ticket #{{ ticket.id }}</h2>
+                    <b>Equipment:</b> {{ ticket.equipment.name }}<br/>
+                    <hr/>
+                    {{ content|safe }}
+                </td>
+            </tr>
+            <tr>
+                <td style="border-top: 1px solid #dee7eb;padding: 20px;text-align: center;">
+                    <h4>Questions? We can help.</h4>
+                    <a href="https://bcrw.apple.com/urn:biz:959b0d05-a091-4bd7-96cb-7a2fbe53174d"><img
+                            src="https://wewillfixyourpc.co.uk/BusinessChatButton_chat.svg"></a>
+                    <a href="tel://+442920766039"><img src="https://wewillfixyourpc.co.uk/BusinessChatButton_call.svg"></a>
+                    <p>Chat with one of our pros to get the help you need</p>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
+</body>
+</html>
