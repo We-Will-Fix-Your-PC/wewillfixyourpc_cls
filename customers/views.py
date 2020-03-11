@@ -20,22 +20,36 @@ import secrets
 twilio_client = twilio.rest.Client(settings.TWILIO_ACCOUNT, settings.TWILIO_TOKEN)
 
 
-@login_required
-@permission_required('customers.view_customer', raise_exception=True)
-def view_customers(request):
+def get_customers():
     client = django_keycloak_auth.clients.get_keycloak_admin_client()
-    customers = sorted(
-        list(
-            map(
-                lambda u: tasks.get_user(u.get("id")),
-                client._client.get(
+
+    users = []
+    first = 0
+    inc = 500
+    while True:
+        new_users = client._client.get(
                     url=client._client.get_full_url(
                         'auth/admin/realms/{realm}/roles/{role_name}/users'
                             .format(realm=client._name, role_name="customer")
                     )
                 )
+        users.extend(new_users)
+        if len(new_users) < inc:
+            break
+        first += inc
+
+    return list(
+            map(
+                lambda u: tasks.get_user(u.get("id")),
+                users
             )
-        ),
+        )
+
+@login_required
+@permission_required('customers.view_customer', raise_exception=True)
+def view_customers(request):
+    customers = sorted(
+        get_customers(),
         key=lambda c: f"{c.get('firstName')} {c.get('lastName')}"
     )
     return render(request, "customer/customers.html", {

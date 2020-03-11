@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.db.models import Q
 import django_keycloak_auth.users
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
@@ -7,6 +6,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.conf import settings
 import customers.tasks
+import customers.views
 import tickets.models
 import tickets.views
 import json
@@ -62,15 +62,7 @@ def search(request):
                 ((q in u.get("firstName", "").lower().strip() or q in u.get("lastName", "").lower().strip() or
                            q in u.get("email", "").lower().strip()) or
                  any([q in p for p in u.get("attributes", {}).get("phone", [])])) for q in query),
-            map(
-                lambda u: customers.tasks.get_user(u._user_id),
-                filter(
-                    lambda u: next(filter(
-                        lambda r: r.get('name') == 'customer', u.role_mappings.realm.get()
-                    ), False),
-                    django_keycloak_auth.users.get_users()
-                )
-            )
+            customers.views.get_customers()
         )
     )
     customer_ids = list(
