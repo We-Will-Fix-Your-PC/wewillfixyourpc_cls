@@ -174,7 +174,7 @@ def new_customer(request):
                     **transform_customer_form(form, phone_numbers)
                 )
             except requests.exceptions.HTTPError as e:
-                if e.response.response_code == 409:
+                if e.response.status_code == 409:
                     msg = "Customer already exists"
             else:
                 models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
