@@ -29,8 +29,8 @@ def get_customers():
     while True:
         new_users = client._client.get(
                     url=client._client.get_full_url(
-                        'auth/admin/realms/{realm}/roles/{role_name}/users'
-                            .format(realm=client._name, role_name="customer")
+                        'auth/admin/realms/{realm}/roles/{role_name}/users?first={first}&max={max}'
+                            .format(realm=client._name, role_name="customer", first=first, max=inc)
                     )
                 )
         users.extend(new_users)
