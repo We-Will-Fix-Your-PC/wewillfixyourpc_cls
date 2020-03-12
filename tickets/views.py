@@ -2,6 +2,7 @@ import json
 import urllib.parse
 import copy
 import requests
+from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
@@ -294,6 +295,14 @@ def request_update(request, ticket_id):
                 },
                 "action_id": "send_ticket_update",
                 "value": f"{ticket.id}"
+            }, {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "View ticket"
+                },
+                "action_id": "view_ticket",
+                "url": settings.EXTERNAL_URL_BASE + reverse("tickets:view_ticket", args=[ticket.id])
             }]
         }]
     }).raise_for_status()
