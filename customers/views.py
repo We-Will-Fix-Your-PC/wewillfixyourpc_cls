@@ -45,6 +45,7 @@ def get_customers():
             )
         )
 
+
 @login_required
 @permission_required('customers.view_customer', raise_exception=True)
 def view_customers(request):
@@ -197,11 +198,11 @@ def new_customer(request):
                         "to": num,
                         "contents": body
                     })
-                    twilio_client.messages.create(
-                        to=num,
-                        messaging_service_sid=settings.TWILIO_MSID,
-                        body=body
-                    )
+                    # twilio_client.messages.create(
+                    #     to=num,
+                    #     messaging_service_sid=settings.TWILIO_MSID,
+                    #     body=body
+                    # )
 
                 if form.cleaned_data["email"] and len(numbers):
                     for num in numbers:
