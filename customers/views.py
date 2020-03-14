@@ -156,7 +156,8 @@ def edit_customer(request, customer_id):
     return render(request, "customer/customer_form.html", {
         "form": form,
         "phone_numbers": phone_numbers,
-        "title": "Edit customer"
+        "title": "Edit customer",
+        "send_message": False
     })
 
 
@@ -168,6 +169,7 @@ def new_customer(request):
         form = forms.CustomerForm(request.POST, prefix="primary")
         phone_numbers = forms.CustomerPhoneFormSet(request.POST)
         phone_numbers.clean()
+        send_text = request.POST.get("send-text") == "yes"
         if form.is_valid() and phone_numbers.is_valid():
             try:
                 user = django_keycloak_auth.users.get_or_create_user(
@@ -181,47 +183,49 @@ def new_customer(request):
                 models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
                 django_keycloak_auth.users.link_roles_to_user(user.get("id"), ["customer"])
 
-                numbers = list(
-                    map(
-                        lambda p: p["phone_number"].as_e164,
-                        filter(
-                            lambda p: p.get("phone_number"),
-                            phone_numbers.cleaned_data
+                if send_text:
+                    numbers = list(
+                        map(
+                            lambda p: p["phone_number"].as_e164,
+                            filter(
+                                lambda p: p.get("phone_number"),
+                                phone_numbers.cleaned_data
+                            )
                         )
                     )
-                )
 
-                def send_message(num, body):
-                    requests.post(f"{settings.VSMS_URL}message/new/",  headers={
-                        "Authorization": f"Bearer {django_keycloak_auth.clients.get_access_token()}"
-                    }, json={
-                        "to": num,
-                        "contents": body
-                    })
-                    # twilio_client.messages.create(
-                    #     to=num,
-                    #     messaging_service_sid=settings.TWILIO_MSID,
-                    #     body=body
-                    # )
+                    def send_message(num, body):
+                        # requests.post(f"{settings.VSMS_URL}message/new/",  headers={
+                        #     "Authorization": f"Bearer {django_keycloak_auth.clients.get_access_token()}"
+                        # }, json={
+                        #     "to": num,
+                        #     "contents": body
+                        # })
+                        twilio_client.messages.create(
+                            to=num,
+                            messaging_service_sid=settings.TWILIO_MSID,
+                            body=body
+                        )
 
-                if form.cleaned_data["email"] and len(numbers):
-                    for num in numbers:
-                        send_message(
-                            num,
-                            f"Welcome to your We Will Fix Your PC account. Your username is "
-                            f"{user.get('username')}, and details to setup your account have been"
-                            f"emailed to you. Login to see your repairs at https://wwfypc.xyz/cls",
-                        )
-                elif len(numbers):
-                    password = secrets.token_hex(4)
-                    django_keycloak_auth.users.get_user_by_id(user.get("id")).reset_password(password, temporary=True)
-                    for num in numbers:
-                        send_message(
-                            num,
-                            f"Welcome to your We Will Fix Your PC account. Your username is "
-                            f"{user.get('username')}, and your temporary password is "
-                            f"{password}. Login to see your repairs at https://wwfypc.xyz/cls",
-                        )
+                    if form.cleaned_data["email"] and len(numbers):
+                        for num in numbers:
+                            text_contents = f"Hi, we're We Will Fix Your PC. Thanks for choosing us for your repair! " \
+                                f"We've created an account for you so you can view the status of your repairs. " \
+                                f"Your username is {user.get('username')}, and details to setup your account" \
+                                f" have been emailed to you. To view your repairs go to https://wwfypc.xyz/cls and " \
+                                f"follow the instructions"
+                            send_message(num, text_contents)
+                    elif len(numbers):
+                        password = secrets.token_hex(4)
+                        django_keycloak_auth.users.get_user_by_id(user.get("id"))\
+                            .reset_password(password, temporary=True)
+                        for num in numbers:
+                            text_contents = f"Hi, we're We Will Fix Your PC. Thanks for choosing us for your repair! " \
+                                f"We've created an account for you so you can view the status of your repairs. " \
+                                f"Your username is {user.get('username')}, and your temporary password is " \
+                                f"{password}. To view your repairs go to https://wwfypc.xyz/cls and follow the " \
+                                f"instructions"
+                            send_message(num, text_contents)
 
                 if not request.GET.get("next"):
                     return redirect("customers:view_customers")
@@ -244,7 +248,8 @@ def new_customer(request):
         "form": form,
         "phone_numbers": phone_numbers,
         "title": "New customer",
-        "msg": msg
+        "msg": msg,
+        "send_message": True
     })
 
 
