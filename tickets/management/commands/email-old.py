@@ -18,7 +18,7 @@ class Command(BaseCommand):
         })
 
         email = EmailMessage(
-            'Old ticket summary', email_cont, 'noreply@noreply.wewillfixyourpc.co.uk', [settings.UPDATES_EMAIL]
+            'Old ticket summary', email_cont, 'cls@ewillfixyourpc.co.uk', [settings.UPDATES_EMAIL]
         )
         email.content_subtype = 'html'
         email.send()

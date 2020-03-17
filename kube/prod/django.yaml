@@ -37,7 +37,7 @@ data:
   EXTERNAL_URL: "https://cardifftec.uk"
   SENTRY_ENVIRONMENT: "prod"
   CELERY_RESULT_BACKEND: "redis://redis"
-  EMAIL_HOST: "mail.misell.cymru"
+  EMAIL_HOST: "smtp.sendgrid.net"
   UPDATES_EMAIL: "matt@wewillfixyourpc.co.uk"
   CUSTOMER_SUPPORT_URL: "https://bot.cardifftec.uk/"
   VSMS_URL: "http://vsms.vsms:3000/"
@@ -115,9 +115,6 @@ spec:
                 name: firebase
               prefix: "FIREBASE_"
             - secretRef:
-                name: nexmo
-              prefix: "NEXMO_"
-            - secretRef:
                 name: slack
               prefix: "SLACK_"
             - secretRef:
@@ -161,9 +158,6 @@ spec:
             - secretRef:
                 name: firebase
               prefix: "FIREBASE_"
-            - secretRef:
-                name: nexmo
-              prefix: "NEXMO_"
             - secretRef:
                 name: slack
               prefix: "SLACK_"
@@ -233,9 +227,6 @@ spec:
             - secretRef:
                 name: firebase
               prefix: "FIREBASE_"
-            - secretRef:
-                name: nexmo
-              prefix: "NEXMO_"
             - secretRef:
                 name: slack
               prefix: "SLACK_"
