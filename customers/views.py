@@ -183,7 +183,7 @@ def new_customer(request):
                 models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
                 django_keycloak_auth.users.link_roles_to_user(user.get("id"), ["customer"])
 
-                if send_text:
+                if send_text or True:
                     numbers = list(
                         map(
                             lambda p: p["phone_number"].as_e164,
@@ -195,12 +195,12 @@ def new_customer(request):
                     )
 
                     def send_message(num, body):
-                        # requests.post(f"{settings.VSMS_URL}message/new/",  headers={
-                        #     "Authorization": f"Bearer {django_keycloak_auth.clients.get_access_token()}"
-                        # }, json={
-                        #     "to": num,
-                        #     "contents": body
-                        # })
+                        requests.post(f"{settings.VSMS_URL}message/new/",  headers={
+                            "Authorization": f"Bearer {django_keycloak_auth.clients.get_access_token()}"
+                        }, json={
+                            "to": num,
+                            "contents": body
+                        })
                         twilio_client.messages.create(
                             to=num,
                             messaging_service_sid=settings.TWILIO_MSID,
