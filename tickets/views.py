@@ -307,8 +307,9 @@ def request_update(request, ticket_id):
         }]
     }).raise_for_status()
 
-    return redirect('cls:index')
-
+    res = redirect('cls:index')
+    res['Location'] += '?msg=Request+sent'
+    return res
 
 def slack_send_ticket_update(response_url, trigger_id, value):
     r = requests.post("https://slack.com/api/views.open", headers={

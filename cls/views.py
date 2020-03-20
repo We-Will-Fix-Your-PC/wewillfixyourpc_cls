@@ -18,6 +18,7 @@ import datetime
 
 @login_required
 def index(request):
+    msg = request.GET.get("msg")
     user = django_keycloak_auth.users.get_user_by_id(request.user.username)
     role = next(
         filter(
@@ -45,7 +46,8 @@ def index(request):
             "email": email,
             "phones": phones,
             "ref": customer_id_jwt
-        }
+        },
+        "msg": msg
     })
 
 
