@@ -34,3 +34,5 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static("static/", document_root=settings.STATIC_ROOT)
     urlpatterns += static("media/", document_root=settings.MEDIA_ROOT)
+
+handler500 = 'cls.views.handler500'

@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.http import HttpResponse
 from django.conf import settings
+from sentry_sdk import last_event_id
 import customers.tasks
 import customers.views
 import tickets.models
@@ -126,3 +127,16 @@ def slack_interactivity(request):
             tickets.views.slack_send_ticket_update2(response_url, trigger_id, metadata, values)
 
     return HttpResponse("")
+
+
+def handler500(request, *args, **argv):
+    email = None
+    name = None
+    if request.user:
+        email = request.user.email
+        name = f"{request.user.first_name} {request.user.last_name}"
+    return render(request, "500.html", {
+        'sentry_event_id': last_event_id(),
+        "email": email,
+        "name": name
+    }, status=500)

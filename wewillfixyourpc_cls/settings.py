@@ -22,7 +22,8 @@ sentry_sdk.init(
     dsn="https://518037d272e5426895df091967e1b949@sentry.io/1821508",
     environment=os.getenv("SENTRY_ENVIRONMENT", "dev"),
     release=os.getenv("RELEASE", None),
-    integrations=[DjangoIntegration()]
+    integrations=[DjangoIntegration()],
+    send_default_pii=True
 )
 
 

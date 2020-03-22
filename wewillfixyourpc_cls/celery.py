@@ -15,6 +15,7 @@ if not settings.DEBUG:
         environment=os.getenv("SENTRY_ENVIRONMENT", "dev"),
         integrations=[CeleryIntegration(), DjangoIntegration(), RedisIntegration()],
         release=os.getenv("RELEASE", None),
+        send_default_pii=True
     )
 
 app = Celery("wewillfixyourpc_cls")

@@ -1,0 +1,22 @@
+{% extends "cls/base.html" %}
+{% block content %}
+    <h1>Internal server error</h1>
+    <script src="https://browser.sentry-cdn.com/5.15.0/bundle.min.js" integrity="sha384-+ysfQckQvwCB5SppH41IScIz/Iynt2pePnJNMl+D7ZOzDJ+VYhQEuwB0pA60IDM0" crossorigin="anonymous"></script>
+
+    {% if sentry_event_id %}
+        <script>
+            Sentry.init({ dsn: 'https://518037d272e5426895df091967e1b949@sentry.io/1821508' });
+            Sentry.showReportDialog({
+                eventId: '{{ sentry_event_id }}',
+                user: {
+                    {% if email %}
+                        email: "{{ email|escapejs }}"
+                    {% endif %}
+                    {% if name %}
+                        name: "{{ name|escapejs }}"
+                    {% endif %}
+                }
+            })
+        </script>
+    {% endif %}
+{% endblock %}
