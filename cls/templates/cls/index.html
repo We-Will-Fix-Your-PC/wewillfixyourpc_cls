@@ -6,6 +6,11 @@
                 <h1>Welcome!</h1>
             </div>
         </div>
+        {% if msg %}
+            <div class="alert alert-primary" role="alert">
+                {{ msg }}
+            </div>
+        {% endif %}
         <div class="row">
             {% if perms.customers.add_customer or perms.tickets.add_ticket %}
                 <div class="col border p-2 rounded-sm m-2">
