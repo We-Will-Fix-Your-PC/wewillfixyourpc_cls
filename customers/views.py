@@ -183,7 +183,7 @@ def new_customer(request):
                 models.CustomerCache(cust_id=user.get("id"), data=json.dumps(user)).save()
                 django_keycloak_auth.users.link_roles_to_user(user.get("id"), ["customer"])
 
-                if send_text or True:
+                if send_text:
                     numbers = list(
                         map(
                             lambda p: p["phone_number"].as_e164,
