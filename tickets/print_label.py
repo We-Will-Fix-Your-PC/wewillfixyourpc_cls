@@ -61,20 +61,18 @@ LABEL_TEMPLATE = jinja2.Template("""
             <h2>Ticket #{{ id }}</h2>
             <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
         </div>
-        <div>
             <p>
-                {% if customer.email %}
-                    <b>Email:</b>
-                    {{ customer.email }}
-                    <br>
-                {% endif %}
                 {% for phone in customer.get("attributes", {}).get("phone", []) %}
                     <b>Phone:</b>
                     {{ phone }}
                     <br>
                 {% endfor %}
+                {% if customer.email %}
+                    <b>Email:</b>
+                    {{ customer.email }}
+                    <br>
+                {% endif %}
             </p>
-        <div>
     </body>
 </html>
 """)
@@ -109,7 +107,7 @@ RECEIPT_TEMPLATE = jinja2.Template("""
         </style>
     </head>
     <body>
-        <img src="https://wewillfixyourpc.co.uk/wwfypc-logo-wd.png" />
+        <img src="https://cardifftec.uk/static/wwfypc-logo-wd.png" />
         <p>
             39 Lambourne Crescent<br/>
             Cardiff, CF14 5GG<br/>
@@ -334,6 +332,7 @@ def print_ticket_label(ticket: models.Ticket, driver: LabelDriver = None, num=1)
             "option": "SHORT"
         }
     })
+    print(r.text)
     r.raise_for_status()
     short_url = r.json().get("shortLink")
 

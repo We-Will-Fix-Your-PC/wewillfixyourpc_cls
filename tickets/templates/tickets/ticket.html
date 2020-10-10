@@ -52,17 +52,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-1">
+            <div class="col-2">
                 <b>Charger:</b>
-            </div>
-            <div class="col-1">
                 <i class="material-icons">{% if ticket.has_charger %}check_box{% else %}
                     check_box_outline_blank{% endif %}</i>
             </div>
-            <div class="col-1">
+            <div class="col-2">
                 <b>Case:</b>
-            </div>
-            <div class="col-1">
                 <i class="material-icons">{% if ticket.has_case %}check_box{% else %}
                     check_box_outline_blank{% endif %}</i>
             </div>
@@ -87,7 +83,7 @@
         <div class="row">
             <div class="col">
                 <h3>Work done</h3>
-                {{ ticket.work_done }}
+                {{ ticket.work_done|safe }}
             </div>
         </div>
 {% endblock %}

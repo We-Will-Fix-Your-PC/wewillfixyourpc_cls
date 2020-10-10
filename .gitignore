@@ -258,3 +258,5 @@ fabric.properties
 
 venv/
 secrets/
+static/
+wewillfixyourpc_cls/settings.py
