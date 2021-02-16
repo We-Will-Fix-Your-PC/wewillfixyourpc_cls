@@ -61,7 +61,7 @@ LABEL_TEMPLATE = jinja2.Template("""
             <h2>Ticket #{{ id }}</h2>
             <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
         </div>
-        <p>
+        <p style="clear:both;">
             {% for phone in customer.get("attributes", {}).get("phone", []) %}
                 <b>Phone:</b>
                 {{ phone }}
