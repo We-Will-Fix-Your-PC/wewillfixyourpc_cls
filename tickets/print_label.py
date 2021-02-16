@@ -61,18 +61,19 @@ LABEL_TEMPLATE = jinja2.Template("""
             <h2>Ticket #{{ id }}</h2>
             <h1>{{ customer.firstName }} {{ customer.lastName }}</h1>
         </div>
-            <p>
-                {% for phone in customer.get("attributes", {}).get("phone", []) %}
-                    <b>Phone:</b>
-                    {{ phone }}
-                    <br>
-                {% endfor %}
-                {% if customer.email %}
-                    <b>Email:</b>
-                    {{ customer.email }}
-                    <br>
-                {% endif %}
-            </p>
+        <p>
+            {% for phone in customer.get("attributes", {}).get("phone", []) %}
+                <b>Phone:</b>
+                {{ phone }}
+                <br>
+            {% endfor %}
+            {% if customer.email %}
+                <b>Email:</b>
+                {{ customer.email }}
+                <br>
+            {% endif %}
+        </p>
+        <h2>_______________</h2>
     </body>
 </html>
 """)
