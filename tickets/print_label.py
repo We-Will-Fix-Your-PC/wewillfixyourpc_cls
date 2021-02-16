@@ -73,7 +73,7 @@ LABEL_TEMPLATE = jinja2.Template("""
                 <br>
             {% endif %}
         </p>
-        <h2>_______________</h2>
+        <h2 style="margin-top: 10px;">____________________</h2>
     </body>
 </html>
 """)
