@@ -36,7 +36,7 @@ def index(request):
         'cust_id': user.user.get("id"),
         'iat': datetime.datetime.utcnow(),
         'nbf': datetime.datetime.utcnow()
-    }, settings.FACEBOOK_OPTIN_SECRET, algorithm='HS256').decode()
+    }, settings.FACEBOOK_OPTIN_SECRET, algorithm='HS256')
 
     repairs = tickets.models.Ticket.objects.filter(Q(customer=request.user.username), ~Q(status__name="Collected"))
 

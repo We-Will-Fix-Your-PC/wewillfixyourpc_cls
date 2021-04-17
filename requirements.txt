@@ -7,7 +7,7 @@ sentry-sdk
 sentry-sdk[flask]
 flask
 brother_ql
-git+https://github.com/TheEnbyperor/django-keycloak-auth@87451806d594a4ec01de4304df00df96b1c992b4
+git+https://github.com/TheEnbyperor/django-keycloak-auth@c6a9258b90de3855d8a67b745e3659bc95321554
 psycopg2-binary
 gunicorn
 weasyprint
