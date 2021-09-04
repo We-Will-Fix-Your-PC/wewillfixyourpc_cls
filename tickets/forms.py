@@ -15,7 +15,7 @@ class TicketForm(forms.ModelForm):
             'has_charger', 'has_case', 'other_equipment', 'to_do_by', 'location', 'whats_it_doing', 'work_done'
         ]
         widgets = {
-            'booked_by': widgets.AgentWidget(),
+            'booked_by': widgets.AgentWidget(external_booker=True),
             'assigned_to': widgets.AgentWidget(),
             'updater': widgets.AgentWidget(),
             'to_do_by': forms.DateInput(),

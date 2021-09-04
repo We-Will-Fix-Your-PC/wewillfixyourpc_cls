@@ -34,7 +34,9 @@ class CustomerWidget(forms.Select):
 
 
 class AgentWidget(forms.Select):
-    def __init__(self, attrs=None):
+    def __init__(self, external_booker=False, attrs=None):
+        print(external_booker)
+        self.external_booker = external_booker
         super().__init__(attrs=attrs)
         self._client = None
 
@@ -49,23 +51,29 @@ class AgentWidget(forms.Select):
                 )
             )
 
-        agents = list(
-            map(
-                lambda u: (
-                    u.get("id"),
-                    f'{u.get("firstName", "")} {u.get("lastName", "")} '
-                ),
-                filter(
-                    lambda u: u.get('enabled', False),
-                    client._client.get(
-                        url=client._client.get_full_url(
-                            'auth/admin/realms/{realm}/clients/{id}/roles/{role_name}/users'
-                                .format(realm=client._name, id=self._client.get("id"), role_name="agent")
+        def map_user(u):
+            return u.get("id"), f'{u.get("firstName", "")} {u.get("lastName", "")} '
+
+        def get_by_role(role):
+            return list(
+                map(
+                    map_user,
+                    filter(
+                        lambda u: u.get('enabled', False),
+                        client._client.get(
+                            url=client._client.get_full_url(
+                                role
+                            )
                         )
                     )
                 )
             )
-        )
+
+        agents = get_by_role('auth/admin/realms/{realm}/clients/{id}/roles/agent/users'.format(realm=client._name, id=self._client.get("id")))
+        if self.external_booker:
+            external_bookers = get_by_role('auth/admin/realms/{realm}/roles/external-booker/users'.format(realm=client._name))
+            agents += external_bookers
+
         agents.insert(0, ('', '---------'))
         return agents
 
@@ -74,4 +82,4 @@ class AgentWidget(forms.Select):
         pass
 
     def __deepcopy__(self, memodict={}):
-        return AgentWidget(attrs=self.attrs)
+        return AgentWidget(external_booker=self.external_booker, attrs=self.attrs)
