@@ -1,0 +1,37 @@
+{% extends "external_tickets/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <h2 class="text-center">New ticket</h2>
+    <div class="row">
+        <div class="col">
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        {{ form.equipment|as_crispy_field }}
+                    </div>
+                    <div class="col">
+                        {{ form.other_equipment|as_crispy_field }}
+                    </div>
+                    <div class="col-1 d-flex align-items-center">
+                        {{ form.has_case|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.whats_it_doing.errors }}
+                            {{ form.whats_it_doing.label_tag }}<br/>
+                            {{ form.whats_it_doing }}
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ form.media }}
+{% endblock %}

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'tickets',
     'sale',
     'scrap',
+    'external_tickets',
     'crispy_forms',
     'ckeditor',
     'ckeditor_uploader',
@@ -207,3 +208,5 @@ PRINTER_DRIVER_OPS = {}
 #     "model": "QL-720NW",
 #     "label": "62"
 # }
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

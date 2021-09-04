@@ -1,0 +1,38 @@
+{% extends "external_tickets/base.html" %}
+{% block content %}
+    <h2 class="text-center">My tickets</h2>
+    <a href="{% url "external_tickets:new_ticket" %}" class="btn btn-primary btn-lg btn-block">New ticket</a>
+    {% if msg %}
+        <div class="alert alert-info">
+            {{ msg }}
+        </div>
+    {% endif %}
+    {% if not tickets %}
+        <p class="text-center my-3">You currently have no open tickets</p>
+    {% else %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Equipment</th>
+                <th>Assigned to</th>
+                <th>Status</th>
+                <th>Last updated</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.date }}</td>
+                    <td>{{ ticket.equipment }}</td>
+                    <td>{% if ticket.assigned_to %}{{ ticket.get_assigned_to.firstName }} {{ ticket.get_assigned_to.lastName }}{% else %}N/A{% endif %}</td>
+                    <td>{{ ticket.status }}</td>
+                    <td>{{ ticket.date_updated }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
