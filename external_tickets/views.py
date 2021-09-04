@@ -32,7 +32,7 @@ def require_booker(func):
 def view_tickets(request):
     cust_tickets = tickets.models.Ticket.objects\
         .filter(Q(customer=request.user.username), ~Q(status__name="Collected"))\
-        .order('-date')
+        .order_by('-date')
 
     return render(request, "external_tickets/index.html", {
         "tickets": cust_tickets,
